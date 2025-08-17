@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Brain Tumor System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="brand">Brain Tumor System</div>
+        <ul>
+          <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint=='dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+          <li><a href="{{ url_for('classify') }}" {% if request.endpoint=='classify' %}class="active"{% endif %}>Klasifikasi</a></li>
+          <li><a href="{{ url_for('segment') }}" {% if request.endpoint=='segment' %}class="active"{% endif %}>Segmentasi</a></li>
+        </ul>
+      </div>
+    </nav>
+    <main>
+      <div class="container">{% block content %}{% endblock %}</div>
+    </main>
+    <footer>
+      <div class="footer-container">
+        &copy; {{ 2025 }} Brain Tumor System. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>

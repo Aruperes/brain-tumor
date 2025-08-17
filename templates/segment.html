@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block title %}Segmentasi Tumor Otak{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<div class="classify-container">
+  <h2>Segmentasi Tumor Otak</h2>
+  <form method="post" enctype="multipart/form-data" class="classify-form">
+    <label for="image">Pilih gambar MRI untuk segmentasi:</label>
+    <input type="file" name="image" id="image" accept="image/*" required />
+    <button type="submit">Segmentasi</button>
+  </form>
+</div>
+
+<div id="loading" style="display: none; text-align: center; margin: 20px 0">
+  <img
+    src="{{ url_for('static', filename='assets/load.gif') }}"
+    alt="Loading..."
+    width="60"
+  />
+  <p>Memproses segmentasi, mohon tunggu...</p>
+</div>
+
+{% if segmented_path %}
+<div class="result-section">
+  <h4>Hasil Segmentasi:</h4>
+  <img
+    src="{{ url_for('static', filename=segmented_path) }}"
+    class="result-img"
+    alt="Segmentasi"
+  />
+
+  {% if segmentation_info %}
+  <h5>Keterangan Segmentasi:</h5>
+  <div id="segmentation-info"></div>
+
+  <script>
+    const segmentationMarkdown = {{ segmentation_info|tojson }};
+    document.getElementById("segmentation-info").innerHTML = marked.parse(segmentationMarkdown);
+  </script>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+  const form = document.querySelector(".classify-form");
+  const loading = document.getElementById("loading");
+  form.addEventListener("submit", function () {
+    loading.style.display = "block";
+  });
+</script>
+
+{% endblock %}

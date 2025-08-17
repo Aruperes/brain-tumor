@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+<div
+  class="hero-section"
+  style="background: url('{{ url_for('static', filename='assets/brain.jpg') }}') center/cover no-repeat; border-radius:18px; min-height:420px; position:relative; margin-bottom:32px;"
+>
+  <div class="hero-overlay">
+    <div class="hero-content">
+      <span class="hero-label">MRI BRAIN TUMOR SYSTEM</span>
+      <h1 class="hero-title">
+        Klasifikasi & Segmentasi<br /><span class="highlight">Tumor Otak</span>
+      </h1>
+      <p class="hero-desc">
+        Sistem berbasis AI untuk membantu diagnosis tumor otak dari citra MRI
+        secara otomatis dan cepat.<br />
+        Didukung dengan model deep learning.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('classify') }}" class="hero-btn primary"
+          >Klasifikasi</a
+        >
+        <a href="{{ url_for('segment') }}" class="hero-btn secondary"
+          >Segmentasi</a
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fitur-utama-section">
+  <div class="fitur-utama-title">
+    <div class="fitur-utama-subtitle">
+      Sistem menyediakan fitur utama untuk membantu diagnosis tumor otak secara
+      otomatis.
+    </div>
+  </div>
+  <div class="fitur-utama-cards">
+    <div class="fitur-card">
+      <div class="fitur-card-title">Klasifikasi</div>
+      <div class="fitur-card-desc">Menentukan jenis tumor dari gambar MRI.</div>
+    </div>
+    <div class="fitur-card">
+      <div class="fitur-card-title">Segmentasi</div>
+      <div class="fitur-card-desc">Menandai area tumor pada gambar MRI.</div>
+    </div>
+    <div class="fitur-card">
+      <div class="fitur-card-title">Visualisasi GradCAM</div>
+      <div class="fitur-card-desc">
+        Menampilkan area penting pada gambar hasil prediksi.
+      </div>
+    </div>
+    <div class="fitur-card">
+      <div class="fitur-card-title">Interpretasi LLM</div>
+      <div class="fitur-card-desc">
+        Memberikan penjelasan prediksi berbasis teks secara otomatis.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tumor-info-section">
+  <div class="tumor-info-cards">
+    <div class="tumor-card main">
+      <div class="tumor-card-header">
+        <span class="tumor-card-title">Tumor Otak</span>
+      </div>
+      <div class="tumor-card-desc">
+        Tumor otak adalah pertumbuhan sel abnormal di otak yang dapat bersifat
+        jinak maupun ganas. Deteksi dini sangat penting untuk penanganan yang
+        tepat. Terdapat beberapa jenis tumor otak yang umum ditemukan pada
+        manusia.
+      </div>
+    </div>
+    <div class="tumor-card small glioma">
+      <img
+        src="{{ url_for('static', filename='assets/glioma.jpg') }}"
+        alt="Glioma"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Glioma</div>
+      <div class="tumor-card-desc-small">
+        Tumor yang berasal dari sel glial otak, sering bersifat ganas dan tumbuh
+        cepat.
+      </div>
+    </div>
+    <div class="tumor-card small meningioma">
+      <img
+        src="{{ url_for('static', filename='assets/meningioma.jpg') }}"
+        alt="Meningioma"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Meningioma</div>
+      <div class="tumor-card-desc-small">
+        Tumor jinak yang tumbuh di selaput pelindung otak (meninges), biasanya
+        tumbuh lambat.
+      </div>
+    </div>
+    <div class="tumor-card small pituitary">
+      <img
+        src="{{ url_for('static', filename='assets/pituitary.jpg') }}"
+        alt="Pituitary"
+        class="tumor-img"
+      />
+      <div class="tumor-card-title">Pituitary</div>
+      <div class="tumor-card-desc-small">
+        Tumor yang tumbuh di kelenjar pituitari, dapat memengaruhi hormon tubuh.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
