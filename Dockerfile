@@ -1,12 +1,18 @@
+# Gunakan base image Python yang slim
 FROM python:3.11-slim
 
+# Tetapkan direktori kerja
 WORKDIR /app
 
+# =================================================================
+# PERBAIKAN: Menggunakan nama paket 'libgl1' yang lebih modern
+# =================================================================
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+# Salin file requirements terlebih dahulu untuk caching
 COPY requirements.txt .
 
 # Instal dependensi Python
