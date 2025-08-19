@@ -1,9 +1,9 @@
-Flask
-Markdown
-matplotlib
-numpy
-opencv_python
-protobuf
+flask
 python-dotenv
 tensorflow
+numpy
+opencv-python
+matplotlib
+protobuf
 ultralytics
+huggingface_hub

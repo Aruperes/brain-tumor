@@ -6,19 +6,26 @@ import google.generativeai as genai
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 import cv2
-import re
 import matplotlib
 import markdown
-matplotlib.use("Agg")
 from dotenv import load_dotenv
+from huggingface_hub import hf_hub_download
 
+matplotlib.use("Agg")
 load_dotenv()
 
+# API Key Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Utility functions
+# Label klasifikasi
+LABELS = ["Glioma Tumor", "Normal", "Meningioma Tumor", "Pituitary Tumor"]
+IMAGE_SIZE = 224
 
+# Hugging Face repo ID
+HF_REPO_ID = "Revando/EfficientNet"
+
+# ======== Utility Functions =========
 def get_gemini_explanation(prompt):
     try:
         model = genai.GenerativeModel("gemini-2.5-pro")
@@ -26,9 +33,6 @@ def get_gemini_explanation(prompt):
         return response.text
     except Exception as e:
         return f"Gagal menghasilkan penjelasan: {str(e)}"
-
-LABELS = ["Glioma Tumor", "Normal", "Meningioma Tumor", "Pituitary Tumor"]
-IMAGE_SIZE = 224
 
 
 def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None):
@@ -51,25 +55,31 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
 
 def load_selected_model(model_name):
     if model_name == "efficientnet":
-        model = load_model("model/effnet.h5")
+        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/effnet.h5")
+        model = load_model(model_path)
         last_conv = "top_conv"
     elif model_name == "resnet":
-        model = load_model("model/resnet.h5")
+        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/resnet.h5")
+        model = load_model(model_path)
         last_conv = "conv5_block3_out"
     elif model_name == "vgg":
-        model = load_model("model/vgg.h5")
+        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/vgg.h5")
+        model = load_model(model_path)
         last_conv = "block5_conv2"
     elif model_name == "densenet":
-        model = load_model("model/densenet.h5")
+        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/densenet.h5")
+        model = load_model(model_path)
         last_conv = "conv4_block24_concat"
     else:
         raise ValueError("Unknown model")
     return model, last_conv
 
 
+# Load YOLO dari Hugging Face
+yolo_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
+yolo_model = YOLO(yolo_path)
 
 app = Flask(__name__)
-yolo_model = YOLO("model/yolo.pt")
 
 @app.route("/")
 def dashboard():
@@ -78,13 +88,8 @@ def dashboard():
 
 @app.route("/classify", methods=["GET", "POST"])
 def classify():
-    prediction = None
-    gradcam_filename = None
-    gradcam_only_filename = None
-    selected_model = None
-    classification_info = None
-    explanation_html = None
-    input_path = None  
+    prediction, gradcam_filename, gradcam_only_filename = None, None, None
+    selected_model, classification_info, explanation_html, input_path = None, None, None, None  
 
     if request.method == "POST":
         selected_model = request.form["model"]
@@ -112,25 +117,21 @@ def classify():
         heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
         heatmap_uint8 = np.uint8(255 * heatmap)
         heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
-        #heatmap saja
-        gradcam_only_filename = f"heatmap_{img_file.filename}"
         gradcam_only_path = os.path.join("static", gradcam_only_filename)
         cv2.imwrite(gradcam_only_path, heatmap_color)
-        # Gabungan overlay
         superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
         cv2.imwrite(gradcam_path, superimposed_img)
 
+        # Gemini explanation
         prompt = (
             f"Saya mengirimkan gambar MRI otak yang telah diklasifikasikan sebagai: {prediction}.\n"
             f"Saya juga melampirkan hasil visualisasi Grad-CAM pada gambar ini (file: {superimposed_img}). "
             "Tolong analisis gambar Grad-CAM tersebut secara detail. "
-            "Jelaskan secara spesifik di mana letak area yang paling disorot oleh Grad-CAM pada gambar, dan apakah area tersebut menunjukkan keberadaan tumor. "
-            "Jika terdapat tumor, sebutkan secara jelas lokasi atau area pada otak yang terindikasi oleh Grad-CAM. "
-            "Jangan hanya mengulang hasil prediksi atau penjelasan umum tentang Grad-CAM, tapi berikan analisis berdasarkan gambar Grad-CAM yang diberikan. "
+            "Jelaskan secara spesifik di mana letak area yang paling disorot oleh Grad-CAM pada gambar, "
+            "dan apakah area tersebut menunjukkan keberadaan tumor. "
+            "Jika terdapat tumor, sebutkan secara jelas lokasi atau area pada otak yang terindikasi. "
             "Gunakan bahasa yang mudah dipahami namun tetap ilmiah. "
-            "Sertakan potensi implikasi dan langkah selanjutnya secara umum, tanpa memberikan diagnosis pasti.\n"
-            "Format penjelasan menggunakan Markdown dengan heading, poin-poin, dan penekanan teks agar mudah dibaca."
-            "Tolong jangan berikan kata pembuka"
+            "Format penjelasan menggunakan Markdown."
         )
         classification_info = get_gemini_explanation(prompt)
 
@@ -152,10 +153,7 @@ def classify():
 
 @app.route("/segment", methods=["GET", "POST"])
 def segment():
-    segmented_path = None
-    segmentation_info = None
-    explanation_html = None
-    input_path = None  
+    segmented_path, segmentation_info, explanation_html, input_path = None, None, None, None  
 
     if request.method == "POST":
         image = request.files["image"]
@@ -169,20 +167,18 @@ def segment():
         results[0].save(filename=result_img_path)
         segmented_path = f"hasil_{image.filename}"
 
+        # Gemini explanation
         prompt = (
             f"Saya mengirimkan gambar MRI otak yang telah melalui proses segmentasi tumor "
-            f"menggunakan YOLO (file: {segmented_path}).\n"
+            f"menggunakan YOLO (file: {segmented_path}). "
             "Area yang tersegmentasi menunjukkan kemungkinan keberadaan tumor.\n\n"
             "Tolong analisis hasil segmentasi ini secara detail:\n"
             "- Sebutkan lokasi area yang ditandai oleh segmentasi.\n"
-            "- Deskripsikan jenis tumor, bentuk, ukuran relatif, dan karakteristik visual dari area tersebut.\n"
-            "- Jelaskan apakah area tersebut konsisten dengan ciri-ciri tumor otak.\n"
-            "- Jangan hanya menjelaskan YOLO/segmentasi secara umum, tapi analisis berdasarkan gambar segmentasi yang diberikan.\n\n"
+            "- Deskripsikan jenis tumor, bentuk, ukuran relatif, dan karakteristik visual.\n"
+            "- Jelaskan apakah area tersebut konsisten dengan ciri-ciri tumor otak.\n\n"
             "Gunakan bahasa yang mudah dipahami namun tetap ilmiah. "
-            "Format penjelasan menggunakan Markdown dengan heading, poin-poin, dan penekanan teks agar mudah dibaca.\n"
-            "Tolong jangan berikan kata pembuka."
+            "Format penjelasan menggunakan Markdown."
         )
-
         segmentation_info = get_gemini_explanation(prompt)
 
         if segmentation_info:
@@ -196,6 +192,7 @@ def segment():
         segmentation_info=explanation_html,
         input_path=input_path,
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
