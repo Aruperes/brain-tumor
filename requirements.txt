@@ -1,9 +1,11 @@
 flask
 python-dotenv
-tensorflow
+tensorflow-cpu
 numpy
-opencv-python
+opencv-python-headless
 matplotlib
 protobuf
 ultralytics
 huggingface_hub
+markdown
+google-generativeai
