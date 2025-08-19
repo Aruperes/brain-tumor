@@ -9,13 +9,13 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Instal dependensi sistem yang dibutuhkan
+# Instal dependensi sistem yang dibutuhkan untuk OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Instal dependensi Python ke dalam virtual environment
+# Salin dan instal dependensi Python ke dalam virtual environment
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -41,5 +41,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Perintah untuk menjalankan aplikasi
+# Perintah untuk menjalankan aplikasi menggunakan Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
