@@ -10,23 +10,22 @@ import matplotlib
 import markdown
 from dotenv import load_dotenv
 from huggingface_hub import hf_hub_download
+import base64
 
 matplotlib.use("Agg")
 from dotenv import load_dotenv
 
-# -------------------------
 # Load environment variables
-# -------------------------
+
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
+
 HF_REPO_ID = "Revando/EfficientNet"
 
-
-# -------------------------
 # Utility functions
-# -------------------------
+
 def get_gemini_explanation(prompt):
     try:
         model = genai.GenerativeModel("gemini-2.5-pro")
@@ -79,15 +78,41 @@ def load_selected_model(model_name):
         raise ValueError("Unknown model")
     return model, last_conv
 
-# -------------------------
-# Flask app setup
-# -------------------------
-app = Flask(__name__)
 yolo_model = YOLO("model/yolo.pt")
 
-# -------------------------
+def validate_with_gemini(image_path):
+    try:
+        with open(image_path, "rb") as f:
+            img_bytes = f.read()
+        img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+
+        prompt = (
+            "Anda adalah validator untuk aplikasi medis. "
+            "Tugas Anda adalah memeriksa apakah gambar berikut adalah citra MRI otak manusia. "
+            "Jika gambar adalah MRI otak (dengan atau tanpa tumor), jawab 'VALID'. "
+            "Jika bukan (misalnya foto wajah, hewan, CT scan, X-ray, atau objek lain), jawab 'INVALID'. "
+            "Jawaban hanya satu kata: VALID atau INVALID."
+        )
+
+        model = genai.GenerativeModel("gemini-2.5-pro")
+        response = model.generate_content(
+            [
+                prompt,
+                {"mime_type": "image/jpeg", "data": img_bytes}
+            ]
+        )
+
+        return response.text.strip().upper() == "VALID"
+    except Exception as e:
+        print("Error Gemini Validation:", e)
+        return False
+
+# Flask app setup
+
+app = Flask(__name__)
+
 # Routes
-# -------------------------
+
 @app.route("/")
 def dashboard():
     return render_template("dashboard.html")
@@ -108,11 +133,11 @@ def classify():
         img_path = os.path.join("static", img_file.filename)
         img_file.save(img_path)
 
-        # Relevance check using YOLO model
-        results = yolo_model(img_path)
-        if not results[0].boxes:
-            error_message = "Gambar yang Anda unggah tidak terdeteksi sebagai citra medis yang relevan. Silakan coba lagi dengan gambar MRI otak."
-            return render_template("classify.html", error_message=error_message)
+        # Input Validation
+        if not validate_with_gemini(img_path):
+         error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
+         return render_template("classify.html", error_message=error_message)
+
 
         # Preprocess image
         img = cv2.imread(img_path)
@@ -149,7 +174,7 @@ def classify():
         )
         classification_info = get_gemini_explanation(prompt)
 
-        # Convert Markdown to HTML for rendering
+        # Convert Markdown to HTML 
         if classification_info:
             explanation_html = markdown.markdown(
                 classification_info, extensions=["fenced_code", "tables"]
@@ -174,10 +199,9 @@ def segment():
         image_path = os.path.join("static", image.filename)
         image.save(image_path)
 
-        # Relevance check using YOLO model
-        results = yolo_model(image_path)
-        if not results[0].boxes:
-            error_message = "Gambar yang Anda unggah tidak terdeteksi sebagai citra medis yang relevan. Silakan coba lagi dengan gambar MRI otak."
+        # Input validation 
+        if not validate_with_gemini(image_path):
+            error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
             return render_template("segment.html", error_message=error_message)
 
         results = yolo_model(image_path)
@@ -210,8 +234,6 @@ def segment():
         error_message=error_message,
     )
 
-# -------------------------
-# Run app
-# -------------------------
+
 if __name__ == "__main__":
     app.run(debug=True)
