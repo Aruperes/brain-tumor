@@ -29,6 +29,7 @@ HF_REPO_ID = "Revando/EfficientNet"
 def get_gemini_explanation(prompt):
     try:
         model = genai.GenerativeModel("gemini-2.5-pro")
+        #model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -122,9 +123,11 @@ def dashboard():
 def classify():
     prediction = None
     gradcam_filename = None
+    gradcam_only_filename = None
     selected_model = None
     classification_info = None
     explanation_html = None
+    input_path = None  
     error_message = None
 
     if request.method == "POST":
@@ -132,12 +135,12 @@ def classify():
         img_file = request.files["image"]
         img_path = os.path.join("static", img_file.filename)
         img_file.save(img_path)
+        input_path = img_file.filename
 
         # Input Validation
         if not validate_with_gemini(img_path):
          error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
          return render_template("classify.html", error_message=error_message)
-
 
         # Preprocess image
         img = cv2.imread(img_path)
@@ -152,11 +155,17 @@ def classify():
 
         # Grad-CAM heatmap
         gradcam_filename = f"gradcam_{img_file.filename}"
+        gradcam_only_filename = f"heatmap_{img_file.filename}"
         gradcam_path = os.path.join("static", gradcam_filename)
         heatmap = get_gradcam_heatmap(model, img_array, last_conv)
         heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
-        heatmap = np.uint8(255 * heatmap)
-        heatmap_color = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+        heatmap_uint8 = np.uint8(255 * heatmap)
+        heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
+        #heatmap saja
+        gradcam_only_filename = f"heatmap_{img_file.filename}"
+        gradcam_only_path = os.path.join("static", gradcam_only_filename)
+        cv2.imwrite(gradcam_only_path, heatmap_color)
+        # Gabungan overlay
         superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
         cv2.imwrite(gradcam_path, superimposed_img)
 
@@ -184,9 +193,10 @@ def classify():
         "classify.html",
         prediction=prediction,
         gradcam_path=gradcam_filename,
+        gradcam_only_path=gradcam_only_filename,
+        input_path=input_path,
         selected_model=selected_model,
         explanation=explanation_html,
-        error_message=error_message,
     )
 
 @app.route("/segment", methods=["GET", "POST"])
@@ -233,7 +243,6 @@ def segment():
         segmentation_info=segmentation_info,
         error_message=error_message,
     )
-
 
 if __name__ == "__main__":
     app.run(debug=True)
