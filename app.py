@@ -79,7 +79,9 @@ def load_selected_model(model_name):
         raise ValueError("Unknown model")
     return model, last_conv
 
-yolo_model = YOLO("model/yolo.pt")
+# Unduh model YOLO dari Hugging Face dan muat modelnya
+yolo_model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
+yolo_model = YOLO(yolo_model_path)
 
 def validate_with_gemini(image_path):
     try:
