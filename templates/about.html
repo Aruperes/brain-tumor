@@ -1,0 +1,75 @@
+{% extends 'base.html' %} {% block title %}About{% endblock %} {% block content
+%}
+<section class="about-section" id="about">
+  <div class="container">
+    <div class="about-content">
+      <div class="profile-card animate-on-scroll">
+        <div class="profile-image">
+          <img
+            src="{{ url_for('static', filename='assets/profile.jpg') }}"
+            alt="Revando Karlhen Aruperes"
+          />
+        </div>
+        <div class="profile-info">
+          <h2 class="profile-name">Revando Karlhen Aruperes</h2>
+          <p class="profile-title">AI & Machine Learning Enthusiast</p>
+          <div class="profile-socials">
+            <a href="https://linkedin.com/in/revando-aruperes" target="_blank"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+            <a href="https://github.com/revando-aruperes" target="_blank"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a href="mailto:revando.aruperes@example.com"
+              ><i class="fas fa-envelope"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+      <div class="bio-skills-container">
+        <div class="bio-card animate-on-scroll animate-delay-2" id="bio">
+          <h3 class="card-title">About This Project</h3>
+          <p>
+            NeuroCare AI is a personal research project born from a passion for
+            the intersection of artificial intelligence and medical technology.
+            The goal was to create a comprehensive, end-to-end system for brain
+            tumor analysis using modern deep learning techniques, from
+            classification to segmentation.
+          </p>
+        </div>
+        <div class="skills-card animate-on-scroll animate-delay-4" id="skills">
+          <h3 class="card-title">Technology Stack</h3>
+          <div class="skills-grid">
+            <div class="skill-item">
+              <i class="fab fa-python"></i><span>Python</span>
+            </div>
+            <div class="skill-item">
+              <i class="fas fa-brain"></i><span>TensorFlow</span>
+            </div>
+            <div class="skill-item">
+              <i class="fas fa-flask"></i><span>Flask</span>
+            </div>
+            <div class="skill-item">
+              <i class="fab fa-html5"></i><span>HTML5</span>
+            </div>
+            <div class="skill-item">
+              <i class="fab fa-css3-alt"></i><span>CSS3</span>
+            </div>
+            <div class="skill-item">
+              <i class="fab fa-js-square"></i><span>JavaScript</span>
+            </div>
+            <div class="skill-item">
+              <i class="fas fa-cubes"></i><span>YOLOv8</span>
+            </div>
+            <div class="skill-item">
+              <i class="fas fa-robot"></i><span>Gemini API</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='animations.js') }}"></script>
+{% endblock %}

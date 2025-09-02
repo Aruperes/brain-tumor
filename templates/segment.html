@@ -1,57 +1,124 @@
-{% extends "base.html" %} {% block title %}Segmentasi Tumor Otak{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}Brain Tumor Segmentation{% endblock
+%} {% block content %}
+<section class="classify-section">
+  <div class="container">
+    <div class="classify-container animate-on-scroll">
+      <div class="section-header">
+        <h2 class="section-title">Tumor Segmentation</h2>
+        <p class="section-description">
+          Upload an MRI scan to automatically detect and outline the tumor using
+          the YOLO model.
+        </p>
+      </div>
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        class="classify-form"
+        id="segmentForm"
+      >
+        <div class="file-input-wrapper">
+          <label for="image" class="file-input-label" id="fileLabel">
+            <span class="file-input-icon"
+              ><i class="fas fa-cloud-upload-alt"></i
+            ></span>
+            <span class="file-input-text">Click to Upload MRI Image</span>
+            <span class="file-input-subtext">PNG, JPG, or JPEG accepted</span>
+          </label>
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*"
+            required
+          />
+        </div>
+        <div id="imagePreview" class="image-preview-container"></div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="fas fa-draw-polygon"></i>
+          <span>Start Segmentation</span>
+        </button>
+      </form>
+      {% if error_message %}
+      <div class="error-message animate-on-scroll">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ error_message }}</span>
+      </div>
+      {% endif %}
+    </div>
 
-<!-- Load marked.js early -->
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <div id="loading" class="loading-container" style="display: none">
+      <div class="spinner"></div>
+      <p>AI is segmenting the image, please wait...</p>
+    </div>
 
-<div class="classify-container">
-  <h2>Segmentasi Tumor Otak</h2>
-  {% if error_message %}
-  <p class="error-message">{{ error_message }}</p>
-  {% endif %}
-  <form method="post" enctype="multipart/form-data" class="classify-form">
-    <label for="image">Pilih gambar MRI untuk segmentasi:</label>
-    <input type="file" name="image" id="image" accept="image/*" required />
-    <button type="submit">Segmentasi</button>
-  </form>
-</div>
-
-<div id="loading" style="display: none; text-align: center; margin: 20px 0">
-  <img
-    src="{{ url_for('static', filename='assets/load.gif') }}"
-    alt="Loading..."
-    width="60"
-  />
-  <p>Memproses segmentasi, mohon tunggu...</p>
-</div>
-
-{% if segmented_path %}
-<div class="result-section">
-  <h4>Hasil Segmentasi:</h4>
-  <img
-    src="{{ url_for('static', filename=segmented_path) }}"
-    class="result-img"
-    alt="Segmentasi"
-  />
-
-  {% if segmentation_info %}
-  <h5>Keterangan Segmentasi:</h5>
-  <div id="segmentation-info"></div>
-
-  <script>
-    const segmentationMarkdown = {{ segmentation_info|tojson }};
-    document.getElementById("segmentation-info").innerHTML = marked.parse(segmentationMarkdown);
-  </script>
-  {% endif %}
-</div>
-{% endif %}
-
+    {% if segmented_path %}
+    <div class="results-container" id="results">
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Segmentation Result</h2>
+      </div>
+      <div class="results-grid-single">
+        <div class="result-card animate-on-scroll animate-delay-1">
+          <h4 class="card-title">Segmented MRI</h4>
+          <div class="image-wrapper">
+            <img
+              src="{{ url_for('static', filename=segmented_path) }}"
+              alt="Segmented MRI Result"
+            />
+          </div>
+        </div>
+      </div>
+      {% if segmentation_info %}
+      <div class="explanation-card animate-on-scroll animate-delay-2">
+        <h3 class="card-title">
+          <i class="fas fa-robot"></i> AI-Generated Analysis
+        </h3>
+        <div class="explanation-content">{{ segmentation_info|safe }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='animations.js') }}"></script>
 <script>
-  const form = document.querySelector(".classify-form");
-  const loading = document.getElementById("loading");
-  form.addEventListener("submit", function () {
-    loading.style.display = "block";
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("segmentForm");
+    const loadingSpinner = document.getElementById("loading");
+    const resultsContainer = document.getElementById("results");
+    const submitBtn = document.getElementById("submitBtn");
+
+    if (form) {
+      form.addEventListener("submit", function () {
+        if (resultsContainer) {
+          resultsContainer.style.display = "none";
+        }
+        loadingSpinner.style.display = "flex";
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+      });
+    }
+
+    const imageInput = document.getElementById("image");
+    const fileLabel = document.getElementById("fileLabel");
+    const previewContainer = document.getElementById("imagePreview");
+
+    imageInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        fileLabel.querySelector(".file-input-text").textContent = file.name;
+        fileLabel.querySelector(".file-input-icon").innerHTML =
+          '<i class="fas fa-check-circle"></i>';
+        fileLabel.classList.add("file-selected");
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          previewContainer.innerHTML = `<img src="${event.target.result}" alt="Image Preview" class="preview-image"/>`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
   });
 </script>
-
 {% endblock %}

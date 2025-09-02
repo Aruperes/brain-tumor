@@ -1,94 +1,164 @@
-{% extends "base.html" %} {% block title %}Klasifikasi Tumor Otak{% endblock %}
-{% block content %}
-<div class="classify-container">
-  <h2>Klasifikasi Tumor Otak</h2>
-  <form
-    method="post"
-    enctype="multipart/form-data"
-    class="classify-form"
-    id="classifyForm"
-  >
-    <label for="image">Pilih gambar MRI untuk klasifikasi:</label>
-    <input type="file" name="image" id="image" accept="image/*" required />
+{% extends 'base.html' %} {% block title %}Brain Tumor Classification{% endblock
+%} {% block content %}
+<section class="classify-section">
+  <div class="container">
+    <div class="classify-container animate-on-scroll">
+      <div class="section-header">
+        <h2 class="section-title">Tumor Classification</h2>
+        <p class="section-description">
+          Upload an MRI scan and select a model to classify the tumor type.
+        </p>
+      </div>
 
-    <label for="model_choice">Pilih Model:</label>
-    <select name="model" id="model_choice" required>
-      <option value="efficientnet">EfficientNet</option>
-      <option value="resnet">ResNet</option>
-      <option value="vgg">VGG</option>
-      <option value="densenet">DenseNet</option>
-    </select>
-
-    <button type="submit">Klasifikasi</button>
-  </form>
-</div>
-
-<div id="loading" style="display: none; text-align: center; margin: 20px 0">
-  <img
-    src="{{ url_for('static', filename='assets/load.gif') }}"
-    alt="Loading..."
-    width="60"
-  />
-  <p>Memproses, mohon tunggu...</p>
-</div>
-
-{% if prediction %}
-<div
-  class="result-section"
-  style="
-    background: #6c8793;
-    border-radius: 20px;
-    padding: 32px 24px;
-    margin-top: 30px;
-  "
->
-  <h4 style="color: #fff; margin-bottom: 24px">
-    Hasil Prediksi: {{ prediction }}
-  </h4>
-  <div
-    style="
-      display: flex;
-      flex-wrap: wrap;
-      gap: 32px;
-      justify-content: center;
-      margin-bottom: 28px;
-    "
-  >
-    <div style="text-align: center">
-      <b style="color: #fff">Input</b><br />
-      <img
-        src="{{ url_for('static', filename=input_path) }}"
-        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
-      />
+      <form
+        method="post"
+        enctype="multipart/form-data"
+        class="classify-form"
+        id="classifyForm"
+      >
+        <div class="file-input-wrapper">
+          <label for="image" class="file-input-label" id="fileLabel">
+            <span class="file-input-icon"
+              ><i class="fas fa-cloud-upload-alt"></i
+            ></span>
+            <span class="file-input-text">Click to Upload MRI Image</span>
+            <span class="file-input-subtext">PNG, JPG, or JPEG accepted</span>
+          </label>
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*"
+            required
+          />
+        </div>
+        <div id="imagePreview" class="image-preview-container"></div>
+        <div class="model-selector">
+          <label for="model_choice">Choose a CNN Model:</label>
+          <div class="select-wrapper">
+            <select name="model" id="model_choice" required>
+              <option value="efficientnet" selected>EfficientNet</option>
+              <option value="resnet">ResNet</option>
+              <option value="vgg">VGG</option>
+              <option value="densenet">DenseNet</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          <i class="fas fa-cogs"></i>
+          <span>Start Classification</span>
+        </button>
+      </form>
+      {% if error_message %}
+      <div class="error-message animate-on-scroll">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ error_message }}</span>
+      </div>
+      {% endif %}
     </div>
-    <div style="text-align: center">
-      <b style="color: #fff">GradCAM</b><br />
-      <img
-        src="{{ url_for('static', filename=gradcam_only_path) }}"
-        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
-      />
+
+    <div id="loading" class="loading-container" style="display: none">
+      <div class="spinner"></div>
+      <p>AI is analyzing the image, please wait...</p>
     </div>
-    <div style="text-align: center">
-      <b style="color: #fff">Overlay</b><br />
-      <img
-        src="{{ url_for('static', filename=gradcam_path) }}"
-        style="width: 220px; border-radius: 10px; box-shadow: 0 2px 8px #0002"
-      />
+
+    {% if prediction %}
+    <div class="results-container" id="results">
+      <div class="section-header animate-on-scroll">
+        <h2 class="section-title">Analysis Results</h2>
+      </div>
+      <div class="prediction-card animate-on-scroll">
+        <div class="prediction-icon">
+          {% if 'Normal' in prediction %}
+          <i class="fas fa-check-circle success"></i>
+          {% else %}
+          <i class="fas fa-exclamation-triangle warning"></i>
+          {% endif %}
+        </div>
+        <div class="prediction-text">
+          <span class="prediction-label">Prediction Result:</span>
+          <h3 class="prediction-class">{{ prediction }}</h3>
+        </div>
+      </div>
+      <div class="results-grid">
+        <div class="result-card animate-on-scroll animate-delay-1">
+          <h4 class="card-title">Original MRI</h4>
+          <div class="image-wrapper">
+            <img
+              src="{{ url_for('static', filename=input_path) }}"
+              alt="Original MRI Input"
+            />
+          </div>
+        </div>
+        <div class="result-card animate-on-scroll animate-delay-2">
+          <h4 class="card-title">Grad-CAM Heatmap</h4>
+          <div class="image-wrapper">
+            <img
+              src="{{ url_for('static', filename=gradcam_only_path) }}"
+              alt="Grad-CAM Heatmap"
+            />
+          </div>
+        </div>
+        <div class="result-card animate-on-scroll animate-delay-3">
+          <h4 class="card-title">Heatmap Overlay</h4>
+          <div class="image-wrapper">
+            <img
+              src="{{ url_for('static', filename=gradcam_path) }}"
+              alt="Grad-CAM Overlay"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="explanation-card animate-on-scroll animate-delay-4">
+        <h3 class="card-title">
+          <i class="fas fa-robot"></i> AI-Generated Explanation
+        </h3>
+        <div class="explanation-content">{{ explanation|safe }}</div>
+      </div>
     </div>
+    {% endif %}
   </div>
-  {% if explanation %}
-  <div class="explanation" style="color: #fff; font-size: 1.15em">
-    {{ explanation|safe }}
-  </div>
-  {% endif %}
-</div>
-{% endif %}
-
+</section>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='animations.js') }}"></script>
 <script>
-  const form = document.querySelector(".classify-form");
-  const loading = document.getElementById("loading");
-  form.addEventListener("submit", function () {
-    loading.style.display = "block";
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("classifyForm");
+    const loadingSpinner = document.getElementById("loading");
+    const resultsContainer = document.getElementById("results");
+    const submitBtn = document.getElementById("submitBtn");
+
+    if (form) {
+      form.addEventListener("submit", function () {
+        if (resultsContainer) {
+          resultsContainer.style.display = "none";
+        }
+        loadingSpinner.style.display = "flex";
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+      });
+    }
+
+    const imageInput = document.getElementById("image");
+    const fileLabel = document.getElementById("fileLabel");
+    const previewContainer = document.getElementById("imagePreview");
+
+    imageInput.addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        fileLabel.querySelector(".file-input-text").textContent = file.name;
+        fileLabel.querySelector(".file-input-icon").innerHTML =
+          '<i class="fas fa-check-circle"></i>';
+        fileLabel.classList.add("file-selected");
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          previewContainer.innerHTML = `<img src="${event.target.result}" alt="Image Preview" class="preview-image"/>`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
   });
 </script>
 {% endblock %}

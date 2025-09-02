@@ -115,8 +115,12 @@ app = Flask(__name__)
 # Routes
 
 @app.route("/")
-def dashboard():
-    return render_template("dashboard.html")
+def index():
+    return render_template("index.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 
 @app.route("/classify", methods=["GET", "POST"])
