@@ -10,9 +10,12 @@ ENV PYTHONUNBUFFERED 1
 # Salin file requirements.txt terlebih dahulu untuk memanfaatkan cache Docker
 COPY requirements.txt .
 
-# Instal dependensi menggunakan versi CPU-only dari torch untuk build yang lebih cepat
-# Ini adalah langkah kunci untuk menghindari masalah path dan timeout
-RUN pip install --no-cache-dir -r requirements.txt
+# Langkah 1: Instal torch & torchvision versi CPU-only secara terpisah untuk build yang lebih cepat dan stabil.
+# Ini mencegah pip mencoba mengunduh versi CUDA yang besar.
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision
+
+# Langkah 2: Instal sisa dependensi dari requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt --no-deps ultralytics
 
 # Salin sisa kode aplikasi ke dalam direktori kerja
 COPY . .
