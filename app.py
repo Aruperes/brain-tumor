@@ -251,4 +251,8 @@ def segment():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Dapatkan port dari environment variable, atau gunakan 5000 sebagai default (untuk lokal)
+    port = int(os.environ.get("PORT", 5000))
+    # Jalankan aplikasi di host 0.0.0.0 agar bisa diakses
+    # Set debug=False untuk production
+    app.run(host='0.0.0.0', port=port, debug=False)
