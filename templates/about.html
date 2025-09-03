@@ -3,67 +3,131 @@
 <section class="about-section" id="about">
   <div class="container">
     <div class="about-content">
-      <div class="profile-card animate-on-scroll">
+      <div
+        class="profile-card animate-on-scroll profile-flex"
+        style="max-width: 900px"
+      >
         <div class="profile-image">
           <img
-            src="{{ url_for('static', filename='assets/profile.jpg') }}"
+            src="{{ url_for('static', filename='assets/profil.jpg') }}"
             alt="Revando Karlhen Aruperes"
           />
         </div>
         <div class="profile-info">
           <h2 class="profile-name">Revando Karlhen Aruperes</h2>
-          <p class="profile-title">AI & Machine Learning Enthusiast</p>
+          <p class="profile-title">AI &amp; Full-Stack Developer Enthusiast</p>
           <div class="profile-socials">
-            <a href="https://linkedin.com/in/revando-aruperes" target="_blank"
+            <a
+              href="https://linkedin.com/in/revando-aruperes-072723286/"
+              target="_blank"
               ><i class="fab fa-linkedin"></i
             ></a>
-            <a href="https://github.com/revando-aruperes" target="_blank"
+            <a href="https://github.com/Aruperes" target="_blank"
               ><i class="fab fa-github"></i
             ></a>
             <a href="mailto:revando.aruperes@example.com"
               ><i class="fas fa-envelope"></i
             ></a>
+            <a href="https://www.instagram.com/rvndars/" target="_blank"
+              ><i class="fas fa-camera"></i
+            ></a>
+            <a href="https://www.kaggle.com/revandoaruperes" target="_blank"
+              ><i class="fab fa-kaggle"></i
+            ></a>
           </div>
         </div>
       </div>
-      <div class="bio-skills-container">
-        <div class="bio-card animate-on-scroll animate-delay-2" id="bio">
-          <h3 class="card-title">About This Project</h3>
+      <div class="about-details">
+        <div class="bio-section animate-on-scroll animate-delay-2" id="bio">
+          <h3 class="section-title">About Me</h3>
           <p>
-            NeuroCare AI is a personal research project born from a passion for
-            the intersection of artificial intelligence and medical technology.
-            The goal was to create a comprehensive, end-to-end system for brain
-            tumor analysis using modern deep learning techniques, from
-            classification to segmentation.
+            Hello! I'm Revando Karlhen Aruperes, a passionate AI developer
+            specializing in medical technology applications. I created the Brain
+            Tumor Classification and Segmentation System to help healthcare
+            professionals in the early detection and analysis of brain tumors
+            using advanced deep learning techniques.
+          </p>
+          <p>
+            With a strong background in artificial intelligence and machine
+            learning, I focus on developing innovative solutions that can make a
+            real difference in healthcare. This brain tumor detection system
+            represents my commitment to using technology for the betterment of
+            human health and medical diagnosis.
+          </p>
+          <p>
+            My work involves implementing state-of-the-art computer vision
+            models, including EfficientNet, ResNet, VGG, and DenseNet
+            architectures, combined with advanced visualization techniques like
+            GradCAM to provide interpretable AI solutions for medical
+            professionals.
           </p>
         </div>
-        <div class="skills-card animate-on-scroll animate-delay-4" id="skills">
-          <h3 class="card-title">Technology Stack</h3>
+        <div
+          class="skills-section animate-on-scroll animate-delay-4"
+          id="skills"
+        >
+          <h3 class="section-title">Technical Expertise</h3>
           <div class="skills-grid">
-            <div class="skill-item">
-              <i class="fab fa-python"></i><span>Python</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fas fa-brain"></i> Deep Learning</h4>
+              <p>Neural Networks, CNN, Computer Vision, Medical AI</p>
             </div>
-            <div class="skill-item">
-              <i class="fas fa-brain"></i><span>TensorFlow</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fab fa-python"></i> Python Development</h4>
+              <p>TensorFlow, PyTorch, OpenCV, NumPy, Pandas</p>
             </div>
-            <div class="skill-item">
-              <i class="fas fa-flask"></i><span>Flask</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fas fa-x-ray"></i> Medical Imaging</h4>
+              <p>MRI Analysis, Image Segmentation, GradCAM Visualization</p>
             </div>
-            <div class="skill-item">
-              <i class="fab fa-html5"></i><span>HTML5</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fas fa-code"></i> Web Development</h4>
+              <p>Flask, HTML5, CSS3, JavaScript, Responsive Design</p>
             </div>
-            <div class="skill-item">
-              <i class="fab fa-css3-alt"></i><span>CSS3</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fas fa-flask"></i> Research & Development</h4>
+              <p>AI Model Optimization, Performance Analysis, Innovation</p>
             </div>
-            <div class="skill-item">
-              <i class="fab fa-js-square"></i><span>JavaScript</span>
+            <div class="skill-card hover-lift">
+              <h4><i class="fas fa-chart-line"></i> Data Science</h4>
+              <p>Data Analysis, Visualization, Statistical Modeling</p>
             </div>
-            <div class="skill-item">
-              <i class="fas fa-cubes"></i><span>YOLOv8</span>
-            </div>
-            <div class="skill-item">
-              <i class="fas fa-robot"></i><span>Gemini API</span>
-            </div>
+          </div>
+        </div>
+        <div
+          id="contact"
+          class="contact-section animate-on-scroll animate-delay-5"
+        >
+          <h3 class="section-title">Connect With Me</h3>
+          <p>
+            Interested in collaborating on AI projects or discussing medical
+            technology innovations? Let's connect!
+          </p>
+          <div class="contact-links">
+            <a
+              href="https://www.instagram.com/rvndars/"
+              target="_blank"
+              class="contact-link"
+              ><i class="fas fa-camera"></i> Instagram</a
+            >
+            <a
+              href="https://www.linkedin.com/in/revando-aruperes-072723286/"
+              class="contact-link"
+              target="_blank"
+              ><i class="fab fa-linkedin"></i> LinkedIn</a
+            >
+            <a
+              href="https://github.com/Aruperes"
+              class="contact-link"
+              target="_blank"
+              ><i class="fab fa-github"></i> GitHub</a
+            >
+            <a
+              href="https://www.kaggle.com/revandoaruperes"
+              class="contact-link"
+              target="_blank"
+              ><i class="fab fa-kaggle"></i> kaggle</a
+            >
           </div>
         </div>
       </div>

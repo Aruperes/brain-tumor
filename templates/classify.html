@@ -33,6 +33,7 @@
           />
         </div>
         <div id="imagePreview" class="image-preview-container"></div>
+        <!-- The image preview will be injected here by JS, and CSS will ensure aspect ratio and no overflow -->
         <div class="model-selector">
           <label for="model_choice">Choose a CNN Model:</label>
           <div class="select-wrapper">
@@ -87,6 +88,7 @@
             <img
               src="{{ url_for('static', filename=input_path) }}"
               alt="Original MRI Input"
+              class="preview-image"
             />
           </div>
         </div>
@@ -96,6 +98,7 @@
             <img
               src="{{ url_for('static', filename=gradcam_only_path) }}"
               alt="Grad-CAM Heatmap"
+              class="preview-image"
             />
           </div>
         </div>
@@ -105,6 +108,7 @@
             <img
               src="{{ url_for('static', filename=gradcam_path) }}"
               alt="Grad-CAM Overlay"
+              class="preview-image"
             />
           </div>
         </div>

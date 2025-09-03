@@ -1,3 +1,168 @@
+/* About Page Profile Card Layout */
+.profile-card.profile-flex {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--dark-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: var(--shadow-md);
+  padding: 1.8rem 1.2rem;
+  max-width: 540px;
+  min-height: 160px;
+  margin: 0 auto 2.5rem auto;
+  overflow: visible;
+}
+/* About Page Details (outside card) */
+.about-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  margin-bottom: 2.5rem;
+}
+.bio-section, .skills-section, .contact-section {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0 0 0.5rem 0;
+  margin-bottom: 0.5rem;
+}
+.bio-section .section-title,
+.skills-section .section-title,
+.contact-section .section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.2rem;
+}
+.skill-card {
+  background: var(--dark-card);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 1.2rem 1rem;
+  text-align: left;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.skill-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px) scale(1.02);
+}
+.skill-card h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.skill-card p {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+}
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+.contact-link {
+  background: var(--dark-card);
+  color: var(--primary-color);
+  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+.contact-link:hover {
+  background: var(--primary-color);
+  color: var(--text-primary);
+}
+.profile-image {
+  flex: 0 0 160px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 24px 0 rgba(37,99,235,0.12);
+  background: var(--dark-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.profile-info {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.profile-name {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.profile-title {
+  font-size: 1.15rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.2rem;
+}
+.profile-socials {
+  display: flex;
+  gap: 1.2rem;
+}
+.profile-socials a {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  transition: color 0.2s;
+}
+.profile-socials a:hover {
+  color: var(--accent-color);
+}
+
+@media (max-width: 900px) {
+  .profile-card.profile-flex {
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    gap: 1.5rem;
+    max-width: 100%;
+    min-height: unset;
+  }
+  .profile-info {
+    align-items: center;
+    text-align: center;
+  }
+  .about-details {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  .bio-section, .skills-section, .contact-section {
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    margin-bottom: 1rem;
+  }
+}
 * {
   margin: 0;
   padding: 0;
@@ -33,6 +198,11 @@ body {
   color: var(--text-secondary);
   line-height: 1.6;
   overflow-x: hidden;
+}
+
+.about-section {
+  padding-top: 110px;
+}
 }
 
 .container {
@@ -123,15 +293,33 @@ body {
 }
 
 /* Hero Section */
+
 .hero {
-  padding: 12rem 0 6rem;
-  text-align: center;
+  padding: 8rem 0 6rem;
   background: radial-gradient(
     circle at top,
     var(--dark-surface),
     var(--dark-bg)
   );
 }
+
+.hero-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.hero-content {
+  flex: 1 1 0;
+  min-width: 320px;
+  max-width: 600px;
+  text-align: left;
+}
+
 .hero-title {
   font-size: 3.5rem;
   font-weight: 800;
@@ -144,16 +332,135 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .hero-description {
   max-width: 600px;
-  margin: 0 auto 2.5rem;
+  margin-bottom: 2.5rem;
   font-size: 1.1rem;
 }
 
 .hero-buttons {
   display: flex;
   gap: 1rem;
+  justify-content: flex-start;
+}
+
+.hero-visual {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  min-width: 320px;
+}
+
+.brain-scan {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 60% 40%, #1e293b 70%, #334155 100%);
+  box-shadow: 0 0 40px 0 rgba(37,99,235,0.08);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 60% 40%, rgba(37,99,235,0.08) 60%, transparent 100%);
+  pointer-events: none;
+}
+.scan-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(59,130,246,0.08) 0px, rgba(59,130,246,0.08) 2px, transparent 3px, transparent 20px);
+  pointer-events: none;
+}
+.pulse-dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #60a5fa 60%, #2563eb 100%);
+  box-shadow: 0 0 24px 8px #3b82f6, 0 0 8px 2px #2563eb;
+  animation: pulse-glow 2.2s infinite alternate;
+}
+.pulse-1 {
+  top: 60px;
+  left: 80px;
+  animation-delay: 0s;
+  animation-name: pulse-glow, pulse-move-1;
+  animation-duration: 2.2s, 3.5s;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: alternate, alternate;
+}
+.pulse-2 {
+  top: 180px;
+  left: 210px;
+  animation-delay: 0.7s;
+  animation-name: pulse-glow, pulse-move-2;
+  animation-duration: 2.2s, 3.2s;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: alternate, alternate;
+}
+.pulse-3 {
+  top: 220px;
+  left: 120px;
+  animation-delay: 1.2s;
+  animation-name: pulse-glow, pulse-move-3;
+  animation-duration: 2.2s, 2.8s;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: alternate, alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 24px 8px #3b82f6, 0 0 8px 2px #2563eb;
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 40px 16px #60a5fa, 0 0 16px 4px #2563eb;
+    transform: scale(1.18);
+    opacity: 0.85;
+  }
+}
+@keyframes pulse-move-1 {
+  0% { top: 60px; left: 80px; }
+  100% { top: 80px; left: 100px; }
+}
+@keyframes pulse-move-2 {
+  0% { top: 180px; left: 210px; }
+  100% { top: 200px; left: 190px; }
+}
+@keyframes pulse-move-3 {
+  0% { top: 220px; left: 120px; }
+  100% { top: 200px; left: 140px; }
+}
+
+@media (max-width: 900px) {
+  .hero-flex {
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+  .hero-content {
+    text-align: center;
+    max-width: 100%;
+  }
+  .hero-visual {
+    min-width: 0;
+    margin: 0 auto;
+  }
 }
 
 .btn {
@@ -207,11 +514,204 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Technology Section - Feature Cards */
+.tech-title, .tech-description {
+  text-align: center;
+}
+
+.tech-features-cards {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+.tech-feature-card {
+  background: var(--dark-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.2rem 1.2rem 1.2rem;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.tech-feature-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px) scale(1.03);
+}
+.tech-feature-icon {
+  font-size: 2.2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tech-feature-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.tech-feature-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+@media (max-width: 1024px) {
+  .tech-features-cards {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+  }
+  .tech-feature-card {
+    max-width: 400px;
+    width: 100%;
+  }
+}
+
+/* Tumor Types Cards Row */
+.tumor-cards-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tumor-card {
+  background: var(--dark-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.tumor-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.tumor-image {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  height: 140px;
+  margin-bottom: 1.2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.tumor-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.tumor-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(37, 99, 235, 0.12);
+  padding: 0.3rem 0;
+  text-align: center;
+}
+.tumor-severity {
+  display: inline-block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.2rem 0.8rem;
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+.tumor-severity.high {
+  background: var(--danger-color);
+}
+.tumor-severity.medium {
+  background: var(--warning-color);
+}
+.tumor-severity.low {
+  background: var(--success-color);
+}
+.tumor-content {
+  text-align: center;
+}
+.tumor-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.tumor-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.tumor-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+}
+.tumor-stat {
+  background: var(--dark-card);
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.stat-value {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+@media (max-width: 1024px) {
+  .tumor-cards-row {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+  }
+  .tumor-card {
+    max-width: 400px;
+    width: 100%;
+  }
+}
+
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 2.5rem;
+  justify-items: center;
+  align-items: stretch;
 }
+
+@media (max-width: 900px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: unset;
+    gap: 2rem;
+  }
+}
+
 .feature-card {
   background: var(--dark-surface);
   padding: 2.5rem;
@@ -451,4 +951,27 @@ select {
   .hamburger.active .bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
   }
+}
+
+/* Ensure uploaded and result images stay contained and keep aspect ratio */
+.image-preview-container,
+.image-wrapper {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 400px; /* optional: restrict height to avoid extreme vertical overflow */
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  border-radius: 10px;
 }

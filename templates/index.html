@@ -37,7 +37,7 @@
 
     <!-- Hero Section -->
     <section class="hero" id="home">
-      <div class="hero-container">
+      <div class="hero-container hero-flex">
         <div class="hero-content">
           <div class="hero-badge">
             <i class="fas fa-microscope"></i>
@@ -49,8 +49,7 @@
           </h1>
           <p class="hero-description">
             A personal research project exploring deep learning for brain tumor
-            classification and segmentation from MRI scans. For educational and
-            demo purposes only — not for clinical use.
+            classification and segmentation from MRI scans.
           </p>
           <div class="hero-buttons">
             <a href="/classify" class="btn btn-primary">
@@ -82,9 +81,7 @@
         <div class="section-header">
           <h2 class="section-title">Project Capabilities</h2>
           <p class="section-subtitle">
-            This personal project applies modern machine learning to medical
-            imaging. Results are experimental and intended for learning and
-            demonstration.
+            This personal project applies deep learning to medical imaging.
           </p>
         </div>
         <div class="features-grid">
@@ -92,14 +89,13 @@
             <div class="feature-icon brain">
               <i class="fas fa-brain"></i>
             </div>
-            <h3 class="feature-title">Smart Classification</h3>
+            <h3 class="feature-title">Classification</h3>
             <p class="feature-description">
               Automatically identify and classify different types of brain
               tumors including gliomas, meningiomas, and pituitary.
             </p>
             <ul class="feature-list">
               <li><i class="fas fa-check"></i>Multi-class tumor detection</li>
-              <li><i class="fas fa-check"></i>Real-time analysis</li>
             </ul>
           </div>
           <div class="feature-card">
@@ -159,7 +155,7 @@
             tumors with detailed characteristics and clinical significance.
           </p>
         </div>
-        <div class="tumor-grid">
+        <div class="tumor-cards-row">
           <div class="tumor-card glioma">
             <div class="tumor-image">
               <img src="static/assets/glioma.jpg" alt="Glioma MRI Scan" />
@@ -243,26 +239,35 @@
               Convolutional neural networks trained on public datasets to
               explore clinical-style tasks in a research context.
             </p>
-            <div class="tech-features">
-              <div class="tech-feature">
-                <i class="fas fa-network-wired"></i>
-                <div>
-                  <h4>CNN Architecture</h4>
-                  <p>Deep residual networks for superior feature extraction</p>
+            <div class="tech-features-cards">
+              <div class="tech-feature-card">
+                <div class="tech-feature-icon">
+                  <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="tech-feature-content">
+                  <h4 class="tech-feature-title">CNN Architecture</h4>
+                  <p class="tech-feature-desc">
+                    Deep residual networks for superior feature extraction
+                  </p>
                 </div>
               </div>
-              <div class="tech-feature">
-                <i class="fas fa-database"></i>
-                <div>
-                  <h4>Public Dataset Training</h4>
-                  <p>Experiments on open medical imaging datasets</p>
+              <div class="tech-feature-card">
+                <div class="tech-feature-icon">
+                  <i class="fas fa-database"></i>
+                </div>
+                <div class="tech-feature-content">
+                  <h4 class="tech-feature-title">Public Dataset Training</h4>
+                  <p class="tech-feature-desc">
+                    Experiments on open medical imaging datasets
+                  </p>
                 </div>
               </div>
-              <div class="tech-feature">
-                <i class="fas fa-shield-alt"></i>
-                <div>
-                  <h4>Not for Clinical Use</h4>
-                  <p>Research prototype</p>
+              <div class="tech-feature-card">
+                <div class="tech-feature-icon">
+                  <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="tech-feature-content">
+                  <p class="tech-feature-desc">Research prototype</p>
                 </div>
               </div>
             </div>
@@ -307,7 +312,7 @@
           <div class="footer-brand">
             <div class="brand-logo">
               <i class="fas fa-brain"></i>
-              <span>Brain Tumor AI — Personal Project</span>
+              <span>NeuroCare — Personal Project</span>
             </div>
             <p>A personal research project by Revando Karlhen Aruperes.</p>
           </div>
@@ -333,10 +338,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <p>
-            &copy; 2025 Revando Karlhen Aruperes. For educational and demo
-            purposes only. Not intended for medical use.
-          </p>
+          <p>&copy; 2025 Revando Karlhen Aruperes.</p>
         </div>
       </div>
     </footer>
