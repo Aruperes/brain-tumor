@@ -251,4 +251,7 @@ def segment():
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Port akan diambil dari variabel lingkungan PORT yang disediakan oleh Railway
+    port = int(os.environ.get("PORT", 5000))
+    # Set debug=False untuk lingkungan produksi
+    app.run(host="0.0.0.0", port=port, debug=False)
