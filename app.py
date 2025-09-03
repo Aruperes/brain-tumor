@@ -4,6 +4,7 @@ import numpy as np
 from ultralytics import YOLO
 import google.generativeai as genai
 import tensorflow as tf
+from tensorflow.keras.models import load_model
 import cv2
 import matplotlib
 import markdown
