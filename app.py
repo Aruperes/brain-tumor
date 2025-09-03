@@ -11,6 +11,7 @@ import markdown
 from dotenv import load_dotenv
 from huggingface_hub import hf_hub_download
 import base64
+import tempfile # Untuk manajemen file sementara
 
 matplotlib.use("Agg")
 from dotenv import load_dotenv
@@ -57,27 +58,32 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
     heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
     return heatmap.numpy()
 
+# --- OPTIMIZATION: Preload all models on startup ---
+def preload_all_models():
+    """Memuat semua model klasifikasi sekali saat aplikasi dimulai."""
+    models = {}
+    model_configs = {
+        "efficientnet": {"filename": "model/effnet.h5", "last_conv": "top_conv"},
+        "resnet": {"filename": "model/resnet.h5", "last_conv": "conv5_block3_out"},
+        "vgg": {"filename": "model/vgg.h5", "last_conv": "block5_conv2"},
+        "densenet": {"filename": "model/densenet.h5", "last_conv": "conv4_block24_concat"},
+    }
+    for name, config in model_configs.items():
+        try:
+            print(f"Loading {name} model...")
+            model_path = hf_hub_download(repo_id=HF_REPO_ID, filename=config["filename"])
+            models[name] = {
+                "model": load_model(model_path),
+                "last_conv": config["last_conv"]
+            }
+            print(f"{name} model loaded successfully.")
+        except Exception as e:
+            print(f"Failed to load {name} model: {e}")
+            models[name] = None
+    return models
 
-def load_selected_model(model_name):
-    if model_name == "efficientnet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/effnet.h5")
-        model = load_model(model_path)
-        last_conv = "top_conv"
-    elif model_name == "resnet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/resnet.h5")
-        model = load_model(model_path)
-        last_conv = "conv5_block3_out"
-    elif model_name == "vgg":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/vgg.h5")
-        model = load_model(model_path)
-        last_conv = "block5_conv2"
-    elif model_name == "densenet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/densenet.h5")
-        model = load_model(model_path)
-        last_conv = "conv4_block24_concat"
-    else:
-        raise ValueError("Unknown model")
-    return model, last_conv
+CLASSIFICATION_MODELS = preload_all_models()
+# ----------------------------------------------------
 
 # Unduh model YOLO dari Hugging Face dan muat modelnya
 yolo_model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
@@ -138,42 +144,53 @@ def classify():
 
     if request.method == "POST":
         selected_model = request.form["model"]
+        
+        # Periksa apakah model yang dipilih berhasil dimuat saat startup
+        if not CLASSIFICATION_MODELS.get(selected_model):
+            error_message = f"Model '{selected_model}' tidak tersedia atau gagal dimuat. Silakan coba model lain atau periksa log server."
+            return render_template("classify.html", error_message=error_message)
+
         img_file = request.files["image"]
-        img_path = os.path.join("static", img_file.filename)
-        img_file.save(img_path)
-        input_path = img_file.filename
+        
+        # Gunakan temporary directory untuk keamanan dan kebersihan
+        with tempfile.TemporaryDirectory() as temp_dir:
+            img_path = os.path.join(temp_dir, img_file.filename)
+            img_file.save(img_path)
+            input_path = img_file.filename # Hanya untuk ditampilkan, bukan path sebenarnya
 
-        # Input Validation
-        if not validate_with_gemini(img_path):
-         error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
-         return render_template("classify.html", error_message=error_message)
+            # Input Validation
+            if not validate_with_gemini(img_path):
+                error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
+                return render_template("classify.html", error_message=error_message)
 
-        # Preprocess image
-        img = cv2.imread(img_path)
-        img_resized = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE))
-        img_array = np.expand_dims(img_resized, axis=0)
+            # Preprocess image
+            img = cv2.imread(img_path)
+            img_resized = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE))
+            img_array = np.expand_dims(img_resized, axis=0)
 
-        # Load classification model
-        model, last_conv = load_selected_model(selected_model)
-        preds = model.predict(img_array)
-        pred_class = LABELS[np.argmax(preds)]
-        prediction = pred_class
+            # Gunakan model yang sudah di-preload
+            model_data = CLASSIFICATION_MODELS[selected_model]
+            model = model_data["model"]
+            last_conv = model_data["last_conv"]
+            
+            preds = model.predict(img_array)
+            pred_class = LABELS[np.argmax(preds)]
+            prediction = pred_class
 
-        # Grad-CAM heatmap
-        gradcam_filename = f"gradcam_{img_file.filename}"
-        gradcam_only_filename = f"heatmap_{img_file.filename}"
-        gradcam_path = os.path.join("static", gradcam_filename)
-        heatmap = get_gradcam_heatmap(model, img_array, last_conv)
-        heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
-        heatmap_uint8 = np.uint8(255 * heatmap)
-        heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
-        #heatmap saja
-        gradcam_only_filename = f"heatmap_{img_file.filename}"
-        gradcam_only_path = os.path.join("static", gradcam_only_filename)
-        cv2.imwrite(gradcam_only_path, heatmap_color)
-        # Gabungan overlay
-        superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
-        cv2.imwrite(gradcam_path, superimposed_img)
+            # Grad-CAM heatmap
+            gradcam_filename = f"gradcam_{img_file.filename}"
+            gradcam_only_filename = f"heatmap_{img_file.filename}"
+            gradcam_path = os.path.join("static", gradcam_filename)
+            heatmap = get_gradcam_heatmap(model, img_array, last_conv)
+            heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
+            heatmap_uint8 = np.uint8(255 * heatmap)
+            heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
+            
+            gradcam_only_path = os.path.join("static", gradcam_only_filename)
+            cv2.imwrite(gradcam_only_path, heatmap_color)
+            
+            superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
+            cv2.imwrite(gradcam_path, superimposed_img)
 
         # Gemini AI explanation with Markdown formatting request
         prompt = (
@@ -211,20 +228,22 @@ def segment():
     segmentation_info = None
     error_message = None
     if request.method == "POST":
-        image = request.files["image"]
-        image_path = os.path.join("static", image.filename)
-        image.save(image_path)
+        img_file = request.files["image"]
+        
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_path = os.path.join(temp_dir, img_file.filename)
+            img_file.save(image_path)
 
-        # Input validation 
-        if not validate_with_gemini(image_path):
-            error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
-            return render_template("segment.html", error_message=error_message)
+            # Input validation 
+            if not validate_with_gemini(image_path):
+                error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
+                return render_template("segment.html", error_message=error_message)
 
-        results = yolo_model(image_path)
-        result_img_path = f"static/hasil_{image.filename}"
-        results[0].save(filename=result_img_path)
-        segmented_path = f"hasil_{image.filename}"
-
+            results = yolo_model(image_path)
+            result_img_path = os.path.join("static", f"hasil_{img_file.filename}")
+            results[0].save(filename=result_img_path)
+            segmented_path = f"hasil_{img_file.filename}"
+            
         prompt = (
             f"Saya mengirimkan gambar MRI otak yang telah melalui proses segmentasi tumor "
             f"menggunakan YOLO (file: {segmented_path}). "
