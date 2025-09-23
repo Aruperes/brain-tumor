@@ -58,30 +58,30 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
     return heatmap.numpy()
 
 
-def load_selected_model(model_name):
-    if model_name == "efficientnet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/effnet.h5")
-        model = load_model(model_path)
-        last_conv = "top_conv"
-    elif model_name == "resnet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/resnet.h5")
-        model = load_model(model_path)
-        last_conv = "conv5_block3_out"
-    elif model_name == "vgg":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/vgg.h5")
-        model = load_model(model_path)
-        last_conv = "block5_conv2"
-    elif model_name == "densenet":
-        model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/densenet.h5")
-        model = load_model(model_path)
-        last_conv = "conv4_block24_concat"
-    else:
-        raise ValueError("Unknown model")
-    return model, last_conv
+# Load all models once at startup
+MODEL_PATHS = {
+    "efficientnet": ("model/effnet.h5", "top_conv"),
+    "resnet": ("model/resnet.h5", "conv5_block3_out"),
+    "vgg": ("model/vgg.h5", "block5_conv2"),
+    "densenet": ("model/densenet.h5", "conv4_block24_concat"),
+}
 
-# Unduh model YOLO dari Hugging Face dan muat modelnya
+MODELS = {}
+for name, (filename, last_conv) in MODEL_PATHS.items():
+    path = hf_hub_download(repo_id=HF_REPO_ID, filename=filename)
+    MODELS[name] = {
+        "model": load_model(path),
+        "last_conv": last_conv
+    }
+
+# YOLO model (already loaded globally in your code)
 yolo_model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
 yolo_model = YOLO(yolo_model_path)
+
+def load_selected_model(model_name):
+    if model_name not in MODELS:
+        raise ValueError("Unknown model")
+    return MODELS[model_name]["model"], MODELS[model_name]["last_conv"]
 
 def validate_with_gemini(image_path):
     try:
@@ -251,8 +251,4 @@ def segment():
     )
 
 if __name__ == "__main__":
-    # Dapatkan port dari environment variable, atau gunakan 5000 sebagai default (untuk lokal)
-    port = int(os.environ.get("PORT", 5000))
-    # Jalankan aplikasi di host 0.0.0.0 agar bisa diakses
-    # Set debug=False untuk production
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(debug=True)
