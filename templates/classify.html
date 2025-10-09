@@ -62,7 +62,91 @@
       <p>AI is analyzing the image, please wait...</p>
     </div>
 
-    {% if prediction %}
+    {% if model_performance %}
+    <div
+      class="performance-card animate-on-scroll animate-delay-4"
+      style="max-width: 900px; margin: 48px auto 0 auto"
+    >
+      <h3 class="card-title">
+        <i class="fas fa-chart-bar"></i> Model Performance ({{
+        selected_model|capitalize }})
+      </h3>
+      <div
+        class="performance-content"
+        style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: flex-start;
+          gap: 40px;
+        "
+      >
+        <div class="cm-image-wrapper" style="flex: 1; min-width: 320px">
+          <img
+            src="{{ url_for('static', filename=model_performance.cm_image) }}"
+            alt="Confusion Matrix"
+            class="cm-image"
+            style="
+              width: 100%;
+              max-width: 520px;
+              border-radius: 12px;
+              background: #222;
+              box-shadow: 0 2px 16px #0002;
+            "
+          />
+        </div>
+        <div
+          class="performance-table-wrapper"
+          style="
+            flex: 1;
+            min-width: 220px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding-top: 40px;
+          "
+        >
+          <table
+            class="performance-table"
+            style="
+              width: 100%;
+              font-size: 1.18em;
+              border-collapse: separate;
+              border-spacing: 0 8px;
+            "
+          >
+            <tr>
+              <th style="text-align: left; padding-right: 18px">Accuracy</th>
+              <td style="font-weight: bold">
+                {{ model_performance.accuracy }}
+              </td>
+            </tr>
+            <tr>
+              <th style="text-align: left; padding-right: 18px">Precision</th>
+              <td style="font-weight: bold">
+                {{ model_performance.precision }}
+              </td>
+            </tr>
+            <tr>
+              <th style="text-align: left; padding-right: 18px">Recall</th>
+              <td style="font-weight: bold">{{ model_performance.recall }}</td>
+            </tr>
+            <tr>
+              <th style="text-align: left; padding-right: 18px">F1-Score</th>
+              <td style="font-weight: bold">
+                {{ model_performance.f1_score }}
+              </td>
+            </tr>
+            <tr>
+              <th style="text-align: left; padding-right: 18px">Specificity</th>
+              <td style="font-weight: bold">
+                {{ model_performance.specificity }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %} {% if prediction %}
     <div class="results-container" id="results">
       <div class="section-header animate-on-scroll">
         <h2 class="section-title">Analysis Results</h2>
@@ -88,6 +172,7 @@
               src="{{ url_for('static', filename=input_path) }}"
               alt="Original MRI Input"
               class="preview-image"
+              style="max-width: 220px; height: auto"
             />
           </div>
         </div>
@@ -98,6 +183,7 @@
               src="{{ url_for('static', filename=gradcam_only_path) }}"
               alt="Grad-CAM Heatmap"
               class="preview-image"
+              style="max-width: 220px; height: auto"
             />
           </div>
         </div>
@@ -108,10 +194,12 @@
               src="{{ url_for('static', filename=gradcam_path) }}"
               alt="Grad-CAM Overlay"
               class="preview-image"
+              style="max-width: 220px; height: auto"
             />
           </div>
         </div>
       </div>
+
       <div class="explanation-card animate-on-scroll animate-delay-4">
         <h3 class="card-title">
           <i class="fas fa-robot"></i> AI-Generated Explanation

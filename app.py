@@ -74,7 +74,6 @@ for name, (filename, last_conv) in MODEL_PATHS.items():
         "last_conv": last_conv
     }
 
-# YOLO model (already loaded globally in your code)
 yolo_model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
 yolo_model = YOLO(yolo_model_path)
 
@@ -113,6 +112,42 @@ def validate_with_gemini(image_path):
 # Flask app setup
 
 app = Flask(__name__)
+
+# Model performance metrics
+MODEL_PERFORMANCE = {
+    "efficientnet": {
+        "cm_image": "cm_efficientnet.png",
+        "accuracy": 98.47,
+        "precision": 98.26,
+        "recall": 98.66,
+        "f1_score": 98.45,
+        "specificity": 99.50,
+    },
+    "resnet": {
+        "cm_image": "cm_resnet.png",
+        "accuracy": 96.94,
+        "precision": 96.66,
+        "recall": 97.12,
+        "f1_score": 96.87,
+        "specificity": 98.99,
+    },
+    "vgg": {
+        "cm_image": "cm_vgg.png",
+        "accuracy": 0.92,
+        "precision": 0.91,
+        "recall": 0.90,
+        "f1_score": 0.905,
+        "specificity": 0.93,
+    },
+    "densenet": {
+        "cm_image": "cm_densenet.png",
+        "accuracy": 97.55,
+        "precision": 97.61,
+        "recall": 97.89,
+        "f1_score": 97.73,
+        "specificity": 99.17,
+    },
+}
 
 # Routes
 
@@ -203,6 +238,7 @@ def classify():
         input_path=input_path,
         selected_model=selected_model,
         explanation=explanation_html,
+        model_performance=MODEL_PERFORMANCE.get(selected_model) if selected_model else None,
     )
 
 @app.route("/segment", methods=["GET", "POST"])
