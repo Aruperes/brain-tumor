@@ -181,49 +181,61 @@ def classify():
     input_path = None  
     error_message = None
 
+    # Tambahkan inisialisasi variabel berikut agar tidak error saat GET
+    gradcam_path = None
+    gradcam_only_path = None
+
     if request.method == "POST":
         selected_model = request.form["model"]
         img_file = request.files["image"]
-        img_path = os.path.join("static", img_file.filename)
-        img_file.save(img_path)
+        img_bytes = img_file.read()
         input_path = img_file.filename
 
+        # Simpan file sementara di memori untuk validasi dan proses
+        with open("temp_input.jpg", "wb") as f:
+            f.write(img_bytes)
+
         # Input Validation
-        if not validate_with_gemini(img_path):
-         error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
-         return render_template("classify.html", error_message=error_message)
+        if not validate_with_gemini("temp_input.jpg"):
+            os.remove("temp_input.jpg")
+            error_message = "Gambar Anda tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
+            return render_template("classify.html", error_message=error_message)
 
         # Preprocess image
-        img = cv2.imread(img_path)
-        img_resized = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE))
-        img_array = np.expand_dims(img_resized, axis=0)
+        img_array = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+        img_resized = cv2.resize(img_array, (IMAGE_SIZE, IMAGE_SIZE))
+        img_input = np.expand_dims(img_resized, axis=0)
 
         # Load classification model
         model, last_conv = load_selected_model(selected_model)
-        preds = model.predict(img_array)
+        preds = model.predict(img_input)
         pred_class = LABELS[np.argmax(preds)]
         prediction = pred_class
 
         # Grad-CAM heatmap
-        gradcam_filename = f"gradcam_{img_file.filename}"
-        gradcam_only_filename = f"heatmap_{img_file.filename}"
-        gradcam_path = os.path.join("static", gradcam_filename)
-        heatmap = get_gradcam_heatmap(model, img_array, last_conv)
-        heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
+        heatmap = get_gradcam_heatmap(model, img_input, last_conv)
+        heatmap = cv2.resize(heatmap, (img_array.shape[1], img_array.shape[0]))
         heatmap_uint8 = np.uint8(255 * heatmap)
         heatmap_color = cv2.applyColorMap(heatmap_uint8, cv2.COLORMAP_JET)
-        #heatmap saja
-        gradcam_only_filename = f"heatmap_{img_file.filename}"
-        gradcam_only_path = os.path.join("static", gradcam_only_filename)
-        cv2.imwrite(gradcam_only_path, heatmap_color)
-        # Gabungan overlay
-        superimposed_img = cv2.addWeighted(img, 0.6, heatmap_color, 0.4, 0)
-        cv2.imwrite(gradcam_path, superimposed_img)
 
-        # Gemini AI explanation with Markdown formatting request
+        # Heatmap only (base64)
+        _, heatmap_buf = cv2.imencode('.jpg', heatmap_color)
+        heatmap_b64 = base64.b64encode(heatmap_buf).decode("utf-8")
+
+        # GradCAM overlay (base64)
+        superimposed_img = cv2.addWeighted(img_array, 0.6, heatmap_color, 0.4, 0)
+        _, gradcam_buf = cv2.imencode('.jpg', superimposed_img)
+        gradcam_b64 = base64.b64encode(gradcam_buf).decode("utf-8")
+
+        # Input image (base64)
+        input_b64 = base64.b64encode(img_bytes).decode("utf-8")
+
+        os.remove("temp_input.jpg")
+
+        # Gemini AI explanation
         prompt = (
             f"Saya mengirimkan gambar MRI otak yang telah diklasifikasikan sebagai: {prediction}.\n"
-            f"Saya juga melampirkan hasil visualisasi Grad-CAM pada gambar ini (file: {gradcam_filename}). "
+            "Saya juga melampirkan hasil visualisasi Grad-CAM pada gambar ini. "
             "Tolong analisis gambar Grad-CAM tersebut secara detail. "
             "Jelaskan secara spesifik di mana letak area yang paling disorot oleh Grad-CAM pada gambar, dan apakah area tersebut menunjukkan keberadaan tumor. "
             "Jika terdapat tumor, sebutkan secara jelas lokasi atau area pada otak yang terindikasi oleh Grad-CAM. "
@@ -233,32 +245,39 @@ def classify():
             "Format penjelasan menggunakan Markdown dengan heading, poin-poin, dan penekanan teks agar mudah dibaca."
         )
         classification_info = get_gemini_explanation(prompt)
-
-        # Convert Markdown to HTML 
         if classification_info:
             explanation_html = markdown.markdown(
                 classification_info, extensions=["fenced_code", "tables"]
             )
 
-        # Pada classify (setelah prediction berhasil)
+        # Simpan ke MongoDB
         if prediction:
             history_collection.insert_one({
                 "type": "Classification",
                 "filename": input_path,
                 "result": prediction,
                 "model": selected_model,
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.utcnow(),
+                "input_b64": input_b64,
+                "gradcam_b64": gradcam_b64,
+                "heatmap_b64": heatmap_b64,
             })
+
+        # Untuk preview di halaman
+        gradcam_path = gradcam_b64
+        gradcam_only_path = heatmap_b64
+        input_path = input_b64
 
     return render_template(
         "classify.html",
         prediction=prediction,
-        gradcam_path=gradcam_filename,
-        gradcam_only_path=gradcam_only_filename,
-        input_path=input_path,
+        gradcam_path=gradcam_path,           # gunakan base64
+        gradcam_only_path=gradcam_only_path, # gunakan base64
+        input_path=input_path,               # gunakan base64
         selected_model=selected_model,
         explanation=explanation_html,
         model_performance=MODEL_PERFORMANCE.get(selected_model) if selected_model else None,
+        error_message=error_message,
     )
 
 @app.route("/segment", methods=["GET", "POST"])
@@ -268,22 +287,31 @@ def segment():
     error_message = None
     if request.method == "POST":
         image = request.files["image"]
-        image_path = os.path.join("static", image.filename)
-        image.save(image_path)
+        img_bytes = image.read()
+        image_path = image.filename
+
+        # Simpan file sementara di memori untuk validasi dan proses
+        with open("temp_segment.jpg", "wb") as f:
+            f.write(img_bytes)
 
         # Input validation 
-        if not validate_with_gemini(image_path):
+        if not validate_with_gemini("temp_segment.jpg"):
+            os.remove("temp_segment.jpg")
             error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
             return render_template("segment.html", error_message=error_message)
 
-        results = yolo_model(image_path)
-        result_img_path = f"static/hasil_{image.filename}"
-        results[0].save(filename=result_img_path)
-        segmented_path = f"hasil_{image.filename}"
+        # YOLO segmentasi
+        results = yolo_model("temp_segment.jpg")
+        result_img = results[0].plot()
+        _, result_buf = cv2.imencode('.jpg', result_img)
+        segmented_b64 = base64.b64encode(result_buf).decode("utf-8")
+        input_b64 = base64.b64encode(img_bytes).decode("utf-8")
+
+        os.remove("temp_segment.jpg")
 
         prompt = (
             f"Saya mengirimkan gambar MRI otak yang telah melalui proses segmentasi tumor "
-            f"menggunakan YOLO (file: {segmented_path}). "
+            "menggunakan YOLO. "
             "Area yang tersegmentasi menunjukkan kemungkinan keberadaan tumor.\n\n"
             "Tolong analisis hasil segmentasi ini secara detail:\n"
             "- Sebutkan lokasi area yang ditandai oleh segmentasi.\n"
@@ -293,21 +321,24 @@ def segment():
             "Format penjelasan menggunakan Markdown."
         )
         segmentation_info = get_gemini_explanation(prompt)
-
         if segmentation_info:
             segmentation_info = markdown.markdown(
                 segmentation_info, extensions=["fenced_code", "tables"]
             )
 
-        # Pada segment (setelah segmented_path berhasil)
-        if segmented_path:
+        # Simpan ke MongoDB
+        if segmented_b64:
             history_collection.insert_one({
                 "type": "Segmentation",
-                "filename": segmented_path,
+                "filename": image_path,
                 "result": "Segmented",
                 "model": "YOLO",
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.utcnow(),
+                "input_b64": input_b64,
+                "segmented_b64": segmented_b64,
             })
+
+        segmented_path = segmented_b64
 
     return render_template(
         "segment.html",

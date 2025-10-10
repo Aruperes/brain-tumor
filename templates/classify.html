@@ -169,7 +169,7 @@
           <h4 class="card-title">Original MRI</h4>
           <div class="image-wrapper">
             <img
-              src="{{ url_for('static', filename=input_path) }}"
+              src="data:image/jpeg;base64,{{ input_path }}"
               alt="Original MRI Input"
               class="preview-image"
               style="max-width: 220px; height: auto"
@@ -180,7 +180,7 @@
           <h4 class="card-title">Grad-CAM Heatmap</h4>
           <div class="image-wrapper">
             <img
-              src="{{ url_for('static', filename=gradcam_only_path) }}"
+              src="data:image/jpeg;base64,{{ gradcam_only_path }}"
               alt="Grad-CAM Heatmap"
               class="preview-image"
               style="max-width: 220px; height: auto"
@@ -191,7 +191,7 @@
           <h4 class="card-title">Heatmap Overlay</h4>
           <div class="image-wrapper">
             <img
-              src="{{ url_for('static', filename=gradcam_path) }}"
+              src="data:image/jpeg;base64,{{ gradcam_path }}"
               alt="Grad-CAM Overlay"
               class="preview-image"
               style="max-width: 220px; height: auto"

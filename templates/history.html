@@ -113,7 +113,7 @@ content %}
           Type
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
-          File
+          Images
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
           Model
@@ -131,16 +131,68 @@ content %}
     </thead>
     <tbody>
       {% for item in history %}
-      <tr style="border-bottom: 1px solid #232c3d">
+      <tr style="border-bottom: 1px solid #232c3d; vertical-align: top">
         <td style="padding: 16px 14px">{{ item.type }}</td>
         <td style="padding: 16px 14px">
-          {% if item.filename %}
-          <img
-            src="{{ url_for('static', filename=item.filename) }}"
-            alt="img"
-            style="max-width: 130px; max-height: 130px; border-radius: 10px"
-          />
-          {% else %} - {% endif %}
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            {% if item.input_b64 %}
+            <div style="text-align: center">
+              <img
+                src="data:image/jpeg;base64,{{ item.input_b64 }}"
+                alt="Input"
+                style="
+                  max-width: 80px;
+                  max-height: 80px;
+                  border-radius: 8px;
+                  margin-bottom: 4px;
+                "
+              />
+              <div style="font-size: 0.8em; color: #aaa">Input</div>
+            </div>
+            {% endif %} {% if item.gradcam_b64 %}
+            <div style="text-align: center">
+              <img
+                src="data:image/jpeg;base64,{{ item.gradcam_b64 }}"
+                alt="GradCAM"
+                style="
+                  max-width: 80px;
+                  max-height: 80px;
+                  border-radius: 8px;
+                  margin-bottom: 4px;
+                "
+              />
+              <div style="font-size: 0.8em; color: #aaa">GradCAM</div>
+            </div>
+            {% endif %} {% if item.heatmap_b64 %}
+            <div style="text-align: center">
+              <img
+                src="data:image/jpeg;base64,{{ item.heatmap_b64 }}"
+                alt="Heatmap"
+                style="
+                  max-width: 80px;
+                  max-height: 80px;
+                  border-radius: 8px;
+                  margin-bottom: 4px;
+                "
+              />
+              <div style="font-size: 0.8em; color: #aaa">Heatmap</div>
+            </div>
+            {% endif %} {% if item.segmented_b64 %}
+            <div style="text-align: center">
+              <img
+                src="data:image/jpeg;base64,{{ item.segmented_b64 }}"
+                alt="Segmented"
+                style="
+                  max-width: 80px;
+                  max-height: 80px;
+                  border-radius: 8px;
+                  margin-bottom: 4px;
+                "
+              />
+              <div style="font-size: 0.8em; color: #aaa">Segmented</div>
+            </div>
+            {% endif %}
+          </div>
         </td>
         <td style="padding: 16px 14px">{{ item.model }}</td>
         <td style="padding: 16px 14px">{{ item.result }}</td>

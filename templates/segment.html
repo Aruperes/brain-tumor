@@ -62,7 +62,7 @@
           <h4 class="card-title">Segmented MRI</h4>
           <div class="image-wrapper">
             <img
-              src="{{ url_for('static', filename=segmented_path) }}"
+              src="data:image/jpeg;base64,{{ segmented_path }}"
               alt="Segmented MRI Result"
             />
           </div>
