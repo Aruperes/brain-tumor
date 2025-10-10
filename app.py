@@ -11,9 +11,20 @@ import markdown
 from dotenv import load_dotenv
 from huggingface_hub import hf_hub_download
 import base64
+from bson import ObjectId
+from flask import redirect, url_for
 
 matplotlib.use("Agg")
 from dotenv import load_dotenv
+
+from pymongo import MongoClient
+from datetime import datetime
+
+
+MONGODB_URI = os.getenv("MONGODB_URI")
+mongo_client = MongoClient(MONGODB_URI)
+db = mongo_client["braintumor"]
+history_collection = db["history"]
 
 # Load environment variables
 
@@ -29,7 +40,6 @@ HF_REPO_ID = "Revando/EfficientNet"
 def get_gemini_explanation(prompt):
     try:
         model = genai.GenerativeModel("gemini-2.5-pro")
-        #model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
@@ -230,6 +240,16 @@ def classify():
                 classification_info, extensions=["fenced_code", "tables"]
             )
 
+        # Pada classify (setelah prediction berhasil)
+        if prediction:
+            history_collection.insert_one({
+                "type": "Classification",
+                "filename": input_path,
+                "result": prediction,
+                "model": selected_model,
+                "timestamp": datetime.utcnow()
+            })
+
     return render_template(
         "classify.html",
         prediction=prediction,
@@ -279,12 +299,37 @@ def segment():
                 segmentation_info, extensions=["fenced_code", "tables"]
             )
 
+        # Pada segment (setelah segmented_path berhasil)
+        if segmented_path:
+            history_collection.insert_one({
+                "type": "Segmentation",
+                "filename": segmented_path,
+                "result": "Segmented",
+                "model": "YOLO",
+                "timestamp": datetime.utcnow()
+            })
+
     return render_template(
         "segment.html",
         segmented_path=segmented_path,
         segmentation_info=segmentation_info,
         error_message=error_message,
     )
+
+@app.route("/history")
+def history():
+    history_items = list(history_collection.find().sort("timestamp", -1))
+    return render_template("history.html", history=history_items)
+
+@app.route("/delete_history/<history_id>", methods=["POST"])
+def delete_history(history_id):
+    history_collection.delete_one({"_id": ObjectId(history_id)})
+    return redirect(url_for("history"))
+
+@app.route("/delete_all_history", methods=["POST"])
+def delete_all_history():
+    history_collection.delete_many({})
+    return redirect(url_for("history"))
 
 if __name__ == "__main__":
     app.run(debug=True)

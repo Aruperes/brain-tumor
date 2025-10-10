@@ -50,6 +50,13 @@
           </li>
           <li>
             <a
+              href="{{ url_for('history') }}"
+              class="nav-link {% if request.endpoint == 'history' %}active{% endif %}"
+              >History</a
+            >
+          </li>
+          <li>
+            <a
               href="{{ url_for('about') }}"
               class="nav-link {% if request.endpoint == 'about' %}active{% endif %}"
               >About</a
@@ -81,7 +88,7 @@
               <h4>Platform</h4>
               <a href="{{ url_for('classify') }}">Classification</a>
               <a href="{{ url_for('segment') }}">Segmentation</a>
-              <a href="{{ url_for('about') }}">About</a>
+              <a href="{{ url_for('history') }}">History</a>
             </div>
             <div class="link-group">
               <h4>Connect</h4>

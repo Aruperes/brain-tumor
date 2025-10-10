@@ -295,11 +295,12 @@ body {
 /* Hero Section */
 
 .hero {
-  padding: 8rem 0 6rem;
+  padding: 15rem 0 6rem;
+  min-height: 100vh;
   background: radial-gradient(
     circle at top,
     var(--dark-surface),
-    var(--dark-bg)
+    var(--dark-bg) 
   );
 }
 
@@ -349,7 +350,7 @@ body {
   flex: 1 1 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: right;
   min-width: 320px;
 }
 
@@ -1103,3 +1104,23 @@ select {
   margin: 0 auto;
 }
 
+/* Sticky footer layout */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+.footer {
+  flex-shrink: 0;
+}
