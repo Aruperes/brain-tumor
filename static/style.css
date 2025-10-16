@@ -864,14 +864,14 @@ select {
 .results-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.2rem; /* lebih rapat */
+  gap: 1.2rem; 
   margin-bottom: 1.2rem;
   justify-items: center;
   align-items: stretch;
 }
 .result-card {
   background: var(--dark-surface);
-  padding: 0.7rem 0.7rem 1.2rem 0.7rem; /* lebih kecil */
+  padding: 0.8rem 0.8rem 1.3rem 0.8rem; 
   border-radius: 10px;
   text-align: center;
   box-shadow: var(--shadow-sm);
@@ -885,7 +885,7 @@ select {
 }
 
 .result-card .image-wrapper img {
-  max-width: 120px;
+  max-width: 300px;
   max-height: 160px;
   margin: 0 auto;
   border-radius: 8px;
@@ -906,6 +906,24 @@ select {
   .results-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Specific styles for single segmentation result */
+.segment-result-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.segment-result-wrapper .result-card {
+  max-width: 600px; /* Increased max-width for a larger card */
+  width: 100%;
+}
+
+.segment-result-wrapper .image-wrapper img {
+  max-width: 100%; /* Allow image to fill the card width */
+  height: auto;
+  max-height: none; /* Remove height restriction */
 }
 
 /* Loading Spinner */

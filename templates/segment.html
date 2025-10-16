@@ -6,8 +6,7 @@
       <div class="section-header">
         <h2 class="section-title">Tumor Segmentation</h2>
         <p class="section-description">
-          Upload an MRI scan to automatically detect and outline the tumor using
-          the YOLO model.
+          Upload an MRI scan to automatically detect and outline the tumor.
         </p>
       </div>
       <form
@@ -57,9 +56,8 @@
       <div class="section-header animate-on-scroll">
         <h2 class="section-title">Segmentation Result</h2>
       </div>
-      <div class="results-grid-single">
+      <div class="segment-result-wrapper">
         <div class="result-card animate-on-scroll animate-delay-1">
-          <h4 class="card-title">Segmented MRI</h4>
           <div class="image-wrapper">
             <img
               src="data:image/jpeg;base64,{{ segmented_path }}"
@@ -68,14 +66,6 @@
           </div>
         </div>
       </div>
-      {% if segmentation_info %}
-      <div class="explanation-card animate-on-scroll animate-delay-2">
-        <h3 class="card-title">
-          <i class="fas fa-robot"></i> AI-Generated Analysis
-        </h3>
-        <div class="explanation-content">{{ segmentation_info|safe }}</div>
-      </div>
-      {% endif %}
     </div>
     {% endif %}
   </div>

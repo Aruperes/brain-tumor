@@ -70,10 +70,10 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
 
 # Load all models once at startup
 MODEL_PATHS = {
-    "efficientnet": ("model/effnet.h5", "top_conv"),
-    "resnet": ("model/resnet.h5", "conv5_block3_out"),
+    "efficientnet": ("model/effnetb2.h5", "top_conv"),
+    "resnet": ("model/resnet101.h5", "conv5_block3_out"),
     "vgg": ("model/vgg.h5", "block5_conv2"),
-    "densenet": ("model/densenet.h5", "conv4_block24_concat"),
+    "densenet": ("model/densenet201.h5", "conv4_block24_concat"),
 }
 
 MODELS = {}
@@ -271,9 +271,9 @@ def classify():
     return render_template(
         "classify.html",
         prediction=prediction,
-        gradcam_path=gradcam_path,           # gunakan base64
-        gradcam_only_path=gradcam_only_path, # gunakan base64
-        input_path=input_path,               # gunakan base64
+        gradcam_path=gradcam_path,           
+        gradcam_only_path=gradcam_only_path, 
+        input_path=input_path,               
         selected_model=selected_model,
         explanation=explanation_html,
         model_performance=MODEL_PERFORMANCE.get(selected_model) if selected_model else None,
@@ -308,23 +308,6 @@ def segment():
         input_b64 = base64.b64encode(img_bytes).decode("utf-8")
 
         os.remove("temp_segment.jpg")
-
-        prompt = (
-            f"Saya mengirimkan gambar MRI otak yang telah melalui proses segmentasi tumor "
-            "menggunakan YOLO. "
-            "Area yang tersegmentasi menunjukkan kemungkinan keberadaan tumor.\n\n"
-            "Tolong analisis hasil segmentasi ini secara detail:\n"
-            "- Sebutkan lokasi area yang ditandai oleh segmentasi.\n"
-            "- Deskripsikan jenis tumor, bentuk, ukuran relatif, dan karakteristik visual.\n"
-            "- Jelaskan apakah area tersebut konsisten dengan ciri-ciri tumor otak.\n\n"
-            "Gunakan bahasa yang mudah dipahami namun tetap ilmiah. "
-            "Format penjelasan menggunakan Markdown."
-        )
-        segmentation_info = get_gemini_explanation(prompt)
-        if segmentation_info:
-            segmentation_info = markdown.markdown(
-                segmentation_info, extensions=["fenced_code", "tables"]
-            )
 
         # Simpan ke MongoDB
         if segmented_b64:
