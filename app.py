@@ -242,6 +242,8 @@ def classify():
             "Jangan hanya mengulang hasil prediksi atau penjelasan umum tentang Grad-CAM, tapi berikan analisis berdasarkan gambar Grad-CAM yang diberikan. "
             "Gunakan bahasa yang mudah dipahami namun tetap ilmiah. "
             "Sertakan potensi implikasi dan langkah selanjutnya secara umum, tanpa memberikan diagnosis pasti.\n"
+            "Langsung berikan penjelasan tanpa kata-kata yang tidak relevan. "
+            "Sertakan link ke sumber atau jurnal ilmiah untuk setiap pernyataan dalam penjelasan Anda mengenai hasil klasifikasi.\n"
             "Format penjelasan menggunakan Markdown dengan heading, poin-poin, dan penekanan teks agar mudah dibaca."
         )
         classification_info = get_gemini_explanation(prompt)
