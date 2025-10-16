@@ -98,6 +98,7 @@ content %}
     </div>
   </div>
 
+  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem;">Classification History</h3>
   <table
     style="
       width: 100%;
@@ -105,13 +106,11 @@ content %}
       border-radius: 16px;
       overflow: hidden;
       font-size: 1rem;
+      margin-bottom: 32px;
     "
   >
     <thead>
       <tr style="background: #232c3d">
-        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
-          Type
-        </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
           Images
         </th>
@@ -131,8 +130,8 @@ content %}
     </thead>
     <tbody>
       {% for item in history %}
+      {% if item.type == 'Classification' %}
       <tr style="border-bottom: 1px solid #232c3d; vertical-align: top">
-        <td style="padding: 16px 14px">{{ item.type }}</td>
         <td style="padding: 16px 14px">
           <div style="display: flex; gap: 10px; align-items: flex-start">
             {% if item.input_b64 %}
@@ -176,6 +175,157 @@ content %}
                 "
               />
               <div style="font-size: 0.8em; color: #aaa">Heatmap</div>
+            </div>
+            {% endif %}
+          </div>
+        </td>
+        <td style="padding: 16px 14px">{{ item.model }}</td>
+        <td style="padding: 16px 14px">{{ item.result }}</td>
+        <td style="padding: 16px 14px">
+          {% if item.timestamp %} {{ item.timestamp.strftime('%Y-%m-%d
+          %H:%M:%S') if item.timestamp.__class__.__name__ == 'datetime' else
+          item.timestamp }} {% else %} - {% endif %}
+        </td>
+        <td style="padding: 16px 14px">
+          <button
+            type="button"
+            onclick="openDeleteModal('{{ item._id }}')"
+            style="
+              background: #e74c3c;
+              color: #fff;
+              padding: 6px 14px;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 0.8rem;
+            "
+          >
+            Delete
+          </button>
+          <div
+            id="deleteModal-{{ item._id }}"
+            class="delete-modal"
+            style="
+              display: none;
+              position: fixed;
+              z-index: 9999;
+              left: 0;
+              top: 0;
+              width: 100vw;
+              height: 100vh;
+              background: rgba(0, 0, 0, 0.4);
+              align-items: center;
+              justify-content: center;
+            "
+          >
+            <div
+              style="
+                background: #232c3d;
+                padding: 32px 32px 24px 32px;
+                border-radius: 12px;
+                max-width: 350px;
+                margin: auto;
+                box-shadow: 0 8px 32px #0006;
+                text-align: center;
+              "
+            >
+              <h3 style="margin-bottom: 18px">Delete This History?</h3>
+              <p style="margin-bottom: 24px">
+                Are you sure you want to delete this history?
+              </p>
+              <form
+                method="POST"
+                action="{{ url_for('delete_history', history_id=item._id) }}"
+                style="display: inline"
+              >
+                <button
+                  type="submit"
+                  style="
+                    background: #e74c3c;
+                    color: #fff;
+                    padding: 8px 18px;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    margin-right: 10px;
+                  "
+                >
+                  Yes, Delete
+                </button>
+              </form>
+              <button
+                type="button"
+                onclick="closeDeleteModal('{{ item._id }}')"
+                style="
+                  background: #444;
+                  color: #fff;
+                  padding: 8px 18px;
+                  border: none;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  font-size: 0.8rem;
+                "
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem;">Segmentation History</h3>
+  <table
+    style="
+      width: 100%;
+      background: #181f2a;
+      border-radius: 16px;
+      overflow: hidden;
+      font-size: 1rem;
+    "
+  >
+    <thead>
+      <tr style="background: #232c3d">
+        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
+          Images
+        </th>
+        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
+          Model
+        </th>
+        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
+          Result
+        </th>
+        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
+          Time
+        </th>
+        <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
+          Action
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in history %}
+      {% if item.type == 'Segmentation' %}
+      <tr style="border-bottom: 1px solid #232c3d; vertical-align: top">
+        <td style="padding: 16px 14px">
+          <div style="display: flex; gap: 10px; align-items: flex-start">
+            {% if item.input_b64 %}
+            <div style="text-align: center">
+              <img
+                src="data:image/jpeg;base64,{{ item.input_b64 }}"
+                alt="Input"
+                style="
+                  max-width: 80px;
+                  max-height: 80px;
+                  border-radius: 8px;
+                  margin-bottom: 4px;
+                "
+              />
+              <div style="font-size: 0.8em; color: #aaa">Input</div>
             </div>
             {% endif %} {% if item.segmented_b64 %}
             <div style="text-align: center">
@@ -288,6 +438,7 @@ content %}
           </div>
         </td>
       </tr>
+      {% endif %}
       {% endfor %}
     </tbody>
   </table>
