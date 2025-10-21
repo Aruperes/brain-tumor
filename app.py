@@ -184,7 +184,7 @@ def classify():
     input_b64 = None  # Initialize input_b64
 
     if request.method == "POST":
-        username = request.form["username"]  # Get the username
+        username = request.form["username"] 
         selected_model = request.form["model"]
         img_file = request.files["image"]
         img_bytes = img_file.read()
@@ -257,7 +257,7 @@ def classify():
                 "type": "Classification",
                 "filename": input_path,
                 "result": prediction,
-                "username": request.form["username"],  # Store username instead of model
+                "username": request.form["username"],  
                 "timestamp": datetime.utcnow(),
                 "input_b64": input_b64,
                 "gradcam_b64": gradcam_b64,
@@ -287,7 +287,7 @@ def segment():
     segmentation_info = None
     error_message = None
     if request.method == "POST":
-        username = request.form["username"]  # Get the username
+        username = request.form["username"]  
         image = request.files["image"]
         img_bytes = image.read()
         image_path = image.filename
@@ -317,7 +317,7 @@ def segment():
                 "type": "Segmentation",
                 "filename": image_path,
                 "result": "Segmented",
-                "username": request.form["username"],  # Store username instead of model
+                "username": request.form["username"], 
                 "timestamp": datetime.utcnow(),
                 "input_b64": input_b64,
                 "segmented_b64": segmented_b64,
