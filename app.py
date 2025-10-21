@@ -67,13 +67,12 @@ def get_gradcam_heatmap(model, img_array, last_conv_layer_name, pred_index=None)
     heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
     return heatmap.numpy()
 
-
-# Load all models once at startup
+# Load models
 MODEL_PATHS = {
     "efficientnet": ("model/effnetb2.h5", "top_conv"),
-    "resnet": ("model/resnet101.h5", "conv5_block3_out"),
-    "vgg": ("model/vgg.h5", "block5_conv2"),
-    "densenet": ("model/densenet201.h5", "conv4_block24_concat"),
+    #"resnet": ("model/resnet101.h5", "conv5_block3_out"),
+    #"vgg": ("model/vgg.h5", "block5_conv2"),
+    #"densenet": ("model/densenet201.h5", "conv4_block24_concat"),
 }
 
 MODELS = {}
@@ -172,20 +171,20 @@ def about():
 
 @app.route("/classify", methods=["GET", "POST"])
 def classify():
+    # Initialize all variables
     prediction = None
     gradcam_filename = None
     gradcam_only_filename = None
     selected_model = None
     classification_info = None
     explanation_html = None
-    input_path = None  
     error_message = None
-
-    # Tambahkan inisialisasi variabel berikut agar tidak error saat GET
     gradcam_path = None
     gradcam_only_path = None
+    input_b64 = None  # Initialize input_b64
 
     if request.method == "POST":
+        username = request.form["username"]  # Get the username
         selected_model = request.form["model"]
         img_file = request.files["image"]
         img_bytes = img_file.read()
@@ -258,7 +257,7 @@ def classify():
                 "type": "Classification",
                 "filename": input_path,
                 "result": prediction,
-                "model": selected_model,
+                "username": request.form["username"],  # Store username instead of model
                 "timestamp": datetime.utcnow(),
                 "input_b64": input_b64,
                 "gradcam_b64": gradcam_b64,
@@ -275,7 +274,7 @@ def classify():
         prediction=prediction,
         gradcam_path=gradcam_path,           
         gradcam_only_path=gradcam_only_path, 
-        input_path=input_path,               
+        input_path=input_b64,               
         selected_model=selected_model,
         explanation=explanation_html,
         model_performance=MODEL_PERFORMANCE.get(selected_model) if selected_model else None,
@@ -288,6 +287,7 @@ def segment():
     segmentation_info = None
     error_message = None
     if request.method == "POST":
+        username = request.form["username"]  # Get the username
         image = request.files["image"]
         img_bytes = image.read()
         image_path = image.filename
@@ -317,7 +317,7 @@ def segment():
                 "type": "Segmentation",
                 "filename": image_path,
                 "result": "Segmented",
-                "model": "YOLO",
+                "username": request.form["username"],  # Store username instead of model
                 "timestamp": datetime.utcnow(),
                 "input_b64": input_b64,
                 "segmented_b64": segmented_b64,

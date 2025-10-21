@@ -8,9 +8,7 @@ content %}
       font-size: 2.4rem;
       text-align: left;
     "
-  >
-    History
-  </h2>
+  ></h2>
   {% if history and history|length > 0 %}
   <button
     id="deleteAllBtn"
@@ -98,7 +96,9 @@ content %}
     </div>
   </div>
 
-  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem;">Classification History</h3>
+  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem">
+    Classification History
+  </h3>
   <table
     style="
       width: 100%;
@@ -115,7 +115,7 @@ content %}
           Images
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
-          Model
+          Name
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
           Result
@@ -129,8 +129,7 @@ content %}
       </tr>
     </thead>
     <tbody>
-      {% for item in history %}
-      {% if item.type == 'Classification' %}
+      {% for item in history %} {% if item.type == 'Classification' %}
       <tr style="border-bottom: 1px solid #232c3d; vertical-align: top">
         <td style="padding: 16px 14px">
           <div style="display: flex; gap: 10px; align-items: flex-start">
@@ -179,7 +178,7 @@ content %}
             {% endif %}
           </div>
         </td>
-        <td style="padding: 16px 14px">{{ item.model }}</td>
+        <td style="padding: 16px 14px">{{ item.username }}</td>
         <td style="padding: 16px 14px">{{ item.result }}</td>
         <td style="padding: 16px 14px">
           {% if item.timestamp %} {{ item.timestamp.strftime('%Y-%m-%d
@@ -273,12 +272,13 @@ content %}
           </div>
         </td>
       </tr>
-      {% endif %}
-      {% endfor %}
+      {% endif %} {% endfor %}
     </tbody>
   </table>
 
-  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem;">Segmentation History</h3>
+  <h3 style="margin-top: 24px; margin-bottom: 12px; font-size: 1.8rem">
+    Segmentation History
+  </h3>
   <table
     style="
       width: 100%;
@@ -294,7 +294,7 @@ content %}
           Images
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
-          Model
+          Name
         </th>
         <th style="padding: 20px 14px; text-align: left; font-size: 1.15em">
           Result
@@ -308,8 +308,7 @@ content %}
       </tr>
     </thead>
     <tbody>
-      {% for item in history %}
-      {% if item.type == 'Segmentation' %}
+      {% for item in history %} {% if item.type == 'Segmentation' %}
       <tr style="border-bottom: 1px solid #232c3d; vertical-align: top">
         <td style="padding: 16px 14px">
           <div style="display: flex; gap: 10px; align-items: flex-start">
@@ -344,7 +343,7 @@ content %}
             {% endif %}
           </div>
         </td>
-        <td style="padding: 16px 14px">{{ item.model }}</td>
+        <td style="padding: 16px 14px">{{ item.username }}</td>
         <td style="padding: 16px 14px">{{ item.result }}</td>
         <td style="padding: 16px 14px">
           {% if item.timestamp %} {{ item.timestamp.strftime('%Y-%m-%d
@@ -438,8 +437,7 @@ content %}
           </div>
         </td>
       </tr>
-      {% endif %}
-      {% endfor %}
+      {% endif %} {% endfor %}
     </tbody>
   </table>
   {% else %}

@@ -33,17 +33,19 @@
           />
         </div>
         <div id="imagePreview" class="image-preview-container"></div>
-        <div class="model-selector">
-          <label for="model_choice">Choose a CNN Model:</label>
-          <div class="select-wrapper">
-            <select name="model" id="model_choice" required>
-              <option value="efficientnet" selected>EfficientNet</option>
-              <option value="resnet">ResNet</option>
-              <option value="vgg">VGG</option>
-              <option value="densenet">DenseNet</option>
-            </select>
+        <input type="hidden" name="model" value="efficientnet" />
+        <div class="form-group">
+          <div class="input-group">
+            <input
+              type="text"
+              name="username"
+              id="username"
+              placeholder="Enter your name"
+              required
+            />
           </div>
         </div>
+
         <button type="submit" class="btn btn-primary" id="submitBtn">
           <i class="fas fa-cogs"></i>
           <span>Start Classification</span>
@@ -204,7 +206,13 @@
         <h3 class="card-title">
           <i class="fas fa-robot"></i> AI-Generated Explanation
         </h3>
-        <div class="explanation-content">{{ explanation|safe }}</div>
+        <div class="explanation-content">
+          <div id="explanationText" class="collapsed">
+            {{ explanation|safe }}
+          </div>
+          <div class="read-more-fade"></div>
+          <button class="read-more-btn" id="readMoreBtn">Read More</button>
+        </div>
       </div>
     </div>
     {% endif %}
@@ -250,6 +258,25 @@
         reader.readAsDataURL(file);
       }
     });
+
+    const readMoreBtn = document.getElementById("readMoreBtn");
+    const explanationText = document.getElementById("explanationText");
+
+    if (readMoreBtn && explanationText) {
+      readMoreBtn.addEventListener("click", function () {
+        if (explanationText.classList.contains("collapsed")) {
+          explanationText.classList.remove("collapsed");
+          explanationText.classList.add("expanded");
+          readMoreBtn.textContent = "Show Less";
+          document.querySelector(".read-more-fade").style.display = "none";
+        } else {
+          explanationText.classList.remove("expanded");
+          explanationText.classList.add("collapsed");
+          readMoreBtn.textContent = "Read More";
+          document.querySelector(".read-more-fade").style.display = "block";
+        }
+      });
+    }
   });
 </script>
 {% endblock %}
