@@ -16,10 +16,12 @@ pipeline {
             steps {
                 echo '📦 Installing Python dependencies...'
                 sh '''
-                cd /var/www/brain-tumor
-                . venv/bin/activate
+                bash -c "
+                cd /var/www/brain-tumor &&
+                source venv/bin/activate &&
                 pip install -r requirements.txt
                 deactivate
+                "
                 '''
             }
         }
@@ -28,11 +30,13 @@ pipeline {
             steps {
                 echo '🚀 Restarting Flask (Gunicorn) on port 8000...'
                 sh '''
-                cd /var/www/brain-tumor
-                source venv/bin/activate
-                pkill -f "gunicorn" || true
+                bash -c "
+                cd /var/www/brain-tumor &&
+                source venv/bin/activate &&
+                pkill -f 'gunicorn' || true &&
                 nohup gunicorn --workers 3 --bind 0.0.0.0:8000 app:app > gunicorn.log 2>&1 &
                 deactivate
+                "
                 '''
             }
         }
