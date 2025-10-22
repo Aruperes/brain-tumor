@@ -6,8 +6,8 @@ pipeline {
             steps {
                 echo '📥 Pulling latest code from GitHub...'
                 sh '''
-                    cd /var/www/brain-tumor
-                    git pull origin main
+                cd /var/www/brain-tumor
+                git pull origin main
                 '''
             }
         }
@@ -16,22 +16,23 @@ pipeline {
             steps {
                 echo '📦 Installing Python dependencies...'
                 sh '''
-                    cd /var/www/brain-tumor
-                    bash -c "source venv/bin/activate && pip install -r requirements.txt"
+                cd /var/www/brain-tumor
+                . venv/bin/activate
+                pip install -r requirements.txt
+                deactivate
                 '''
             }
         }
 
         stage('Restart Flask App') {
             steps {
-                echo '🚀 Restarting Flask on port 8000...'
+                echo '🚀 Restarting Flask (Gunicorn) on port 8000...'
                 sh '''
-                    cd /var/www/brain-tumor
-                    bash -c "
-                        source venv/bin/activate && \
-                        pkill -f 'python app.py' || true && \
-                        nohup python app.py --port=8000 > flask.log 2>&1 &
-                    "
+                cd /var/www/brain-tumor
+                source venv/bin/activate
+                pkill -f "gunicorn" || true
+                nohup gunicorn --workers 3 --bind 0.0.0.0:8000 app:app > gunicorn.log 2>&1 &
+                deactivate
                 '''
             }
         }
