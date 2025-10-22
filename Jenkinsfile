@@ -31,8 +31,9 @@ pipeline {
                 sh '''
                 bash -c "
                 cd /var/www/brain-tumor &&
+                # Hentikan proses lama di port 8000 (kalau ada)
+                sudo fuser -k 8000/tcp || true &&
                 . venv/bin/activate &&
-                pkill -f 'gunicorn' || true &&
                 nohup gunicorn --workers 3 --bind 0.0.0.0:8000 app:app > gunicorn.log 2>&1 &
                 "
                 '''
