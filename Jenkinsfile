@@ -35,7 +35,6 @@ pipeline {
                 source venv/bin/activate &&
                 pkill -f 'gunicorn' || true &&
                 nohup gunicorn --workers 3 --bind 0.0.0.0:8000 app:app > gunicorn.log 2>&1 &
-                deactivate
                 "
                 '''
             }
