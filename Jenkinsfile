@@ -18,9 +18,8 @@ pipeline {
                 sh '''
                 bash -c "
                 cd /var/www/brain-tumor &&
-                source venv/bin/activate &&
+                . venv/bin/activate &&
                 pip install -r requirements.txt
-                deactivate
                 "
                 '''
             }
@@ -32,7 +31,7 @@ pipeline {
                 sh '''
                 bash -c "
                 cd /var/www/brain-tumor &&
-                source venv/bin/activate &&
+                . venv/bin/activate &&
                 pkill -f 'gunicorn' || true &&
                 nohup gunicorn --workers 3 --bind 0.0.0.0:8000 app:app > gunicorn.log 2>&1 &
                 "
