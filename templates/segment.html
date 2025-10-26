@@ -90,6 +90,8 @@
     const resultsContainer = document.getElementById("results");
     const submitBtn = document.getElementById("submitBtn");
 
+    const fileInputWrapper = document.querySelector(".file-input-wrapper");
+
     if (form) {
       form.addEventListener("submit", function () {
         if (resultsContainer) {
@@ -99,6 +101,10 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+
+        if (fileInputWrapper) {
+          fileInputWrapper.style.display = "none";
+        }
       });
     }
 

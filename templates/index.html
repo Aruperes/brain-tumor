@@ -36,11 +36,9 @@
       </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero" id="home">
       <div class="hero-container hero-flex">
-        <div class="hero-content" style="padding-right: 60px">
-          <!-- Added padding -->
+        <div class="hero-content">
           <div class="hero-badge">
             <i class="fas fa-microscope"></i>
             <span>Personal AI Medical Imaging Project</span>
@@ -69,16 +67,7 @@
         </div>
         <div class="hero-visual">
           <div class="brain-visual">
-            <img
-              src="static/assets/brain-network.jpg"
-              alt="AI Brain Network"
-              style="
-                width: 100%;
-                max-width: 500px;
-                border-radius: 12px;
-                margin-left: 60px;
-              "
-            />
+            <img src="static/assets/brain-network.jpg" alt="AI Brain Network" />
           </div>
         </div>
       </div>
@@ -324,5 +313,18 @@
     </footer>
 
     <script src="static/script.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const hamburger = document.querySelector(".hamburger");
+        const navMenu = document.querySelector(".nav-menu");
+        if (hamburger && navMenu) {
+          hamburger.addEventListener("click", () => {
+            hamburger.classList.toggle("active");
+            navMenu.classList.toggle("active");
+          });
+        }
+      });
+    </script>
   </body>
 </html>
