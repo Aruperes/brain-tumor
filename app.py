@@ -9,7 +9,6 @@ import cv2
 import matplotlib
 import markdown
 from dotenv import load_dotenv
-from huggingface_hub import hf_hub_download
 import base64
 from bson import ObjectId
 from flask import redirect, url_for
@@ -35,20 +34,15 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
-HF_REPO_ID = "Revando/EfficientNet"
-
 def get_gemini_explanation(text_prompt, input_image_b64, gradcam_image_b64):
     try:
-        # Menggunakan "gemini-pro-vision"
         model = genai.GenerativeModel("gemini-2.5-pro")
 
-        # Siapkan gambar pertama (MRI Asli)
         image_part_1 = {
             "mime_type": "image/jpeg",  
             "data": base64.b64decode(input_image_b64),
         }
 
-        # Siapkan gambar kedua (Grad-CAM)
         image_part_2 = {
             "mime_type": "image/jpeg", 
             "data": base64.b64decode(gradcam_image_b64),
@@ -97,10 +91,10 @@ MODEL_PATHS = {
 
 MODELS = {}
 for name, (filename, last_conv) in MODEL_PATHS.items():
-    path = hf_hub_download(repo_id=HF_REPO_ID, filename=filename)
+    path = filename 
     MODELS[name] = {"model": load_model(path), "last_conv": last_conv}
 
-yolo_model_path = hf_hub_download(repo_id=HF_REPO_ID, filename="model/yolo.pt")
+yolo_model_path = "model/yolo.pt"
 yolo_model = YOLO(yolo_model_path)
 
 
@@ -123,7 +117,6 @@ def validate_with_gemini(image_path):
             "Jawaban hanya satu kata: VALID atau INVALID."
         )
 
-        # Menggunakan "gemini-pro-vision"
         model = genai.GenerativeModel("gemini-2.5-pro")
         response = model.generate_content(
             [prompt, {"mime_type": "image/jpeg", "data": img_bytes}]
@@ -133,9 +126,6 @@ def validate_with_gemini(image_path):
     except Exception as e:
         print("Error Gemini Validation:", e)
         return False
-
-
-# Flask app setup
 
 app = Flask(__name__)
 
@@ -152,7 +142,6 @@ MODEL_PERFORMANCE = {
 }
 
 # Routes
-
 
 @app.route("/")
 def index():
@@ -176,7 +165,7 @@ def classify():
     error_message = None
     gradcam_path = None
     gradcam_only_path = None
-    input_b64 = None  # Initialize input_b64
+    input_b64 = None  
 
     if request.method == "POST":
         username = request.form["username"]
@@ -185,7 +174,6 @@ def classify():
         img_bytes = img_file.read()
         input_path = img_file.filename
 
-        # Simpan file sementara di memori untuk validasi dan proses
         with open("temp_input.jpg", "wb") as f:
             f.write(img_bytes)
 
@@ -240,7 +228,7 @@ Format jawaban Anda **WAJIB** menggunakan MARKDOWN.
 Gunakan struktur berikut:
 
 #### 1. Analisis Visual Grad-CAM
-* **Lokasi Fokus:** Jelaskan secara spesifik di mana Anda melihat area panas (merah/kuning) pada gambar Grad-CAM (misal: "di lobus temporal kanan", "di sekitar ventrikel", dll.).
+* **Lokasi Fokus:** Jelaskan secara spesifik di mana Anda melihat area panas (merah/kuning) pada gambar Grad-CAM dan juga jelaskan visualisasi gradcam dari warna biru, kuning dan merah itu apa{input_b64}, {gradcam_b64}.
 * **Korelasi dengan Prediksi:** Jelaskan apakah lokasi fokus tersebut konsisten dengan diagnosis '{prediction}'.
 
 #### 2. Checklist Fitur Radiologi Kunci
@@ -250,8 +238,8 @@ Gunakan struktur berikut:
 * **Pertimbangan Lain:** Berdasarkan analisis visual Anda, sebutkan 2-3 diagnosis banding lain yang mungkin (jika ada).
 
 #### 4. Rekomendasi & Batasan
-* **Rekomendasi Umum:** Berikan rekomendasi tindak lanjut yang standar.
-* **Batasan:** Ingatkan bahwa ini adalah analisis AI dan harus diverifikasi oleh ahli radiologi manusia.
+* **Rekomendasi Umum:** Berikan rekomendasi tindak lanjut yang standar jika itu teridentifikasi tumor, kalau normal tidak perlu tindak lanjut.
+* **Batasan:** Ingatkan bahwa ini adalah analisis AI dan hanya alat bantu dokter.
 
 Langsung berikan penjelasan dalam format Markdown tanpa kata pembuka atau penutup.
 """
@@ -283,7 +271,6 @@ Langsung berikan penjelasan dalam format Markdown tanpa kata pembuka atau penutu
                 }
             )
 
-        # Untuk preview di halaman
         gradcam_path = gradcam_b64
         gradcam_only_path = heatmap_b64
         input_path = input_b64
@@ -319,14 +306,14 @@ def segment():
             f.write(img_bytes)
 
         # Input validation
-        if not validate_with_gemini("temp_segment.jpg"):
-            os.remove("temp_segment.jpg")
-            error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
-            return render_template("segment.html", error_message=error_message)
+        #if not validate_with_gemini("temp_segment.jpg"):
+            #os.remove("temp_segment.jpg")
+            #error_message = "Gambar yang Anda unggah tidak dikenali sebagai citra MRI otak. Silakan unggah gambar MRI otak."
+            #return render_template("segment.html", error_message=error_message)
 
         # YOLO segmentasi
         results = yolo_model("temp_segment.jpg")
-        result_img = results[0].plot()
+        result_img = results[0].plot(labels=False, conf=False)
         _, result_buf = cv2.imencode(".jpg", result_img)
         segmented_b64 = base64.b64encode(result_buf).decode("utf-8")
         input_b64 = base64.b64encode(img_bytes).decode("utf-8")
